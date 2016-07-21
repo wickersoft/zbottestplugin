@@ -5,7 +5,6 @@
  */
 package zbottestplugin;
 
-import zedly.zbot.ConcurrentLinkedQueue;
 
 /**
  *

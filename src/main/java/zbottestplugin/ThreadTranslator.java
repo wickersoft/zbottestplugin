@@ -7,8 +7,6 @@ package zbottestplugin;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import zedly.zbot.ConcurrentLinkedQueue;
-import zedly.zbot.StringUtil;
 
 /**
  *

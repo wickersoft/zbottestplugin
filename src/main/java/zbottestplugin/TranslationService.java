@@ -8,7 +8,6 @@ package zbottestplugin;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.HashMap;
-import zedly.zbot.HTTP;
 
 /**
  *

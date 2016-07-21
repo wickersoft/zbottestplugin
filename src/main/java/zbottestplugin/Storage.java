@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Random;
-import zedly.zbot.api.self.Self;
+import zedly.zbot.self.Self;
 
 /**
  *

@@ -16,19 +16,17 @@ import java.util.Collection;
 import java.util.List;
 import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
+import zbottestplugin.HTTP.HTTPResponse;
 import zedly.zbot.ClientSettings;
-import zedly.zbot.HTTP;
-import zedly.zbot.HTTP.HTTPResponse;
-import zedly.zbot.StringUtil;
-import zedly.zbot.api.entity.Entity;
-import zedly.zbot.api.entity.Player;
+import zedly.zbot.entity.Entity;
+import zedly.zbot.entity.Player;
 import zedly.zbot.Location;
-import zedly.zbot.api.inventory.ItemStack;
-import zedly.zbot.api.block.Block;
-import zedly.zbot.api.entity.FallingBlock;
-import zedly.zbot.api.entity.Item;
-import zedly.zbot.api.entity.Sheep;
-import zedly.zbot.api.entity.Unknown;
+import zedly.zbot.inventory.ItemStack;
+import zedly.zbot.block.Block;
+import zedly.zbot.entity.FallingBlock;
+import zedly.zbot.entity.Item;
+import zedly.zbot.entity.Sheep;
+import zedly.zbot.entity.Unknown;
 import zedly.zbot.util.Vector;
 
 /**

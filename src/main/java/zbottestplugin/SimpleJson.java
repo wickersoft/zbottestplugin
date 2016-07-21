@@ -1,7 +1,5 @@
 package zbottestplugin;
 
-import zedly.zbot.StringUtil;
-
 public class SimpleJson {
 
     public static String parse(String json) {

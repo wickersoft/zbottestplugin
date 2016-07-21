@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import zedly.zbot.Location;
-import zedly.zbot.api.self.Self;
+import zedly.zbot.self.Self;
 
 /**
  *

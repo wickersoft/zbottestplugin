@@ -7,8 +7,8 @@ package zbottestplugin;
 
 import java.util.ArrayList;
 import zedly.zbot.Location;
-import zedly.zbot.api.entity.Entity;
-import zedly.zbot.api.entity.Monster;
+import zedly.zbot.entity.Entity;
+import zedly.zbot.entity.Monster;
 import zedly.zbot.util.Vector;
 
 /**

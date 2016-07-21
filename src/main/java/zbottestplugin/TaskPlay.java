@@ -6,7 +6,7 @@
 package zbottestplugin;
 
 import zedly.zbot.Location;
-import zedly.zbot.api.self.Self;
+import zedly.zbot.self.Self;
 
 /**
  *

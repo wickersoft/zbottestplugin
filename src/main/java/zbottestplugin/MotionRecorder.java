@@ -7,12 +7,11 @@ package zbottestplugin;
 
 import edu.kit.informatik.Graph;
 import edu.kit.informatik.Node;
-import zedly.zbot.ConcurrentLinkedQueue;
 import zedly.zbot.Location;
-import zedly.zbot.api.event.EventHandler;
-import zedly.zbot.api.event.Listener;
-import zedly.zbot.api.event.entity.EntityBaseEvent;
-import zedly.zbot.api.event.entity.EntityMoveEvent;
+import zedly.zbot.event.EventHandler;
+import zedly.zbot.event.Listener;
+import zedly.zbot.event.entity.EntityBaseEvent;
+import zedly.zbot.event.entity.EntityMoveEvent;
 import zedly.zbot.util.Vector;
 
 /**

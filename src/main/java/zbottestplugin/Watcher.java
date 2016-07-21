@@ -10,16 +10,14 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import zedly.zbot.ConcurrentLinkedQueue;
-import zedly.zbot.StringUtil;
-import zedly.zbot.api.entity.Player;
+import zedly.zbot.entity.Player;
 import zedly.zbot.Location;
-import zedly.zbot.api.event.ChatEvent;
-import zedly.zbot.api.event.EventHandler;
-import zedly.zbot.api.event.Listener;
-import zedly.zbot.api.event.PlayerSpawnEvent;
-import zedly.zbot.api.event.SelfTeleportEvent;
-import zedly.zbot.api.event.entity.EntityMetadataEvent;
+import zedly.zbot.event.ChatEvent;
+import zedly.zbot.event.EventHandler;
+import zedly.zbot.event.Listener;
+import zedly.zbot.event.PlayerSpawnEvent;
+import zedly.zbot.event.SelfTeleportEvent;
+import zedly.zbot.event.entity.EntityMetadataEvent;
 import zedly.zbot.entity.EntityMeta;
 
 /**
