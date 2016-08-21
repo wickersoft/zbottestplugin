@@ -47,7 +47,7 @@ public class Watcher implements Listener {
         } catch (IOException ex) {
         }
 
-        if (evt.getMessage().toLowerCase().matches("(.*)((netherlands)|(germany))\\/(.*):(\\d*)(.*)")) {
+        if (evt.getMessage().matches("^(.+?) joined for the first time!$")) {
             System.out.println("Match!");
             new Thread() {
                 public void run() {
@@ -61,6 +61,13 @@ public class Watcher implements Listener {
                     }
                 }
             }.start();
+            return;
+        }
+
+        if (evt.getMessage().startsWith("[LOTTERY]")) {
+            Storage.self.scheduleSyncDelayedTask(Storage.plugin, (Runnable) () -> {
+                Storage.self.sendChat("/lot buy");
+            }, 10000);
             return;
         }
 
@@ -106,7 +113,8 @@ public class Watcher implements Listener {
     }
 
     @EventHandler
-    public void onPlayerSpawn(PlayerSpawnEvent evt) {
+    public void onPlayerSpawn(PlayerSpawnEvent evt
+    ) {
         Location l = evt.getEntity().getLocation();
         if (evt.getEntity() instanceof Player) {
             Player ep = (Player) evt.getEntity();
@@ -115,7 +123,8 @@ public class Watcher implements Listener {
     }
 
     @EventHandler
-    public void onSelfTeleport(SelfTeleportEvent evt) {
+    public void onSelfTeleport(SelfTeleportEvent evt
+    ) {
         System.out.println("Teleported to " + evt.getNewLocation());
         if (Storage.graph != null) {
             Node n = Storage.graph.getClosestNodeTo(Storage.self.getLocation());
@@ -126,13 +135,14 @@ public class Watcher implements Listener {
             }
         }
     }
-    
+
     @EventHandler
-    public void onEntityMeta(EntityMetadataEvent evt) {
-        if(Storage.debugEntity == evt.getEntity().getEntityId()) {
+    public void onEntityMeta(EntityMetadataEvent evt
+    ) {
+        if (Storage.debugEntity == evt.getEntity().getEntityId()) {
             Map<Integer, EntityMeta> metaMap = evt.getMap();
             System.out.println("EntityMeta update for " + Storage.debugEntity + ":");
-            for(int i : metaMap.keySet()) {
+            for (int i : metaMap.keySet()) {
                 System.out.println(i + ": " + metaMap.get(i));
             }
             System.out.println("");

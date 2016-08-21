@@ -5,7 +5,6 @@
  */
 package zbottestplugin;
 
-
 /**
  *
  * @author Dennis
@@ -24,4 +23,5 @@ public class Synchronizer implements Runnable {
     public void synchronize(Runnable r) {
         queue.enq(r);
     }
+
 }

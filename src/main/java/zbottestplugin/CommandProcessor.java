@@ -23,6 +23,7 @@ import zedly.zbot.entity.Player;
 import zedly.zbot.Location;
 import zedly.zbot.inventory.ItemStack;
 import zedly.zbot.block.Block;
+import zedly.zbot.block.Material;
 import zedly.zbot.entity.FallingBlock;
 import zedly.zbot.entity.Item;
 import zedly.zbot.entity.Sheep;
@@ -535,11 +536,32 @@ public class CommandProcessor {
                         respond(respondTo, is.getAmount() + "x " + is.getTypeId() + ":" + is.getDamageValue());
                     }
                     break;
+                case "break":
+                    if (args.length == 4) {
+                        int x = Integer.parseInt(args[1]);
+                        int y = Integer.parseInt(args[2]);
+                        int z = Integer.parseInt(args[3]);
+                        Storage.self.breakBlock(x, y, z);
+                    } else if (args.length == 5) {
+                        int x = Integer.parseInt(args[1]);
+                        int y = Integer.parseInt(args[2]);
+                        int z = Integer.parseInt(args[3]);
+                        int ms = Integer.parseInt(args[4]);
+                        Storage.self.breakBlock(x, y, z, ms, ()->{});
+                    }
+                    break;
                 case "place":
                     if (args.length == 4) {
                         int x = Integer.parseInt(args[1]);
                         int y = Integer.parseInt(args[2]);
                         int z = Integer.parseInt(args[3]);
+                        Storage.self.placeBlock(x, y, z);
+                    } else if (args.length == 5) {
+                        int x = Integer.parseInt(args[1]);
+                        int y = Integer.parseInt(args[2]);
+                        int z = Integer.parseInt(args[3]);
+                        int type = Integer.parseInt(args[4]);
+                        InventoryUtil.findAndSelect(Material.fromTypeId(type));
                         Storage.self.placeBlock(x, y, z);
                     }
                     break;
