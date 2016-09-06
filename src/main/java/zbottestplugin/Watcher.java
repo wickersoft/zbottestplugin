@@ -46,25 +46,9 @@ public class Watcher implements Listener {
             Storage.os.write(10); // \n
         } catch (IOException ex) {
         }
-
-        if (evt.getMessage().matches("^(.+?) joined for the first time!$")) {
-            System.out.println("Match!");
-            new Thread() {
-                public void run() {
-                    try {
-                        String rdns = StringUtil.extract(evt.getMessage(), "/", ":");
-                        String helpop = Workarounds.locate(rdns);
-                        Storage.self.sendChat("/helpop " + helpop);
-                        return;
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                    }
-                }
-            }.start();
-            return;
-        }
-
-        if (evt.getMessage().startsWith("[LOTTERY]")) {
+        
+        if (evt.getMessage().startsWith("[LOTTERY]") && (evt.getMessage().contains("Congratulations")
+                || evt.getMessage().contains("Draw"))) {
             Storage.self.scheduleSyncDelayedTask(Storage.plugin, (Runnable) () -> {
                 Storage.self.sendChat("/lot buy");
             }, 10000);

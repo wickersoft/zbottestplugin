@@ -10,6 +10,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import zbottestplugin.Storage;
 import zedly.zbot.Location;
+import zedly.zbot.block.Material;
 
 /**
  *
@@ -18,7 +19,9 @@ import zedly.zbot.Location;
 public class AStar {
 
     private static final HashSet<Integer> NONSOLID_BLOCKS;
+    private static final HashSet<Integer> FORBIDDEN_BLOCKS;
     private static final int MAX_PATH_WEIGHT = 1000;
+    private static final int MAX_DISTANCE = 100;
     private static PriorityQueue<GeometricPath> searchPerimeter;
     private static HashSet<Long> visited;
     private static int runtimeCounter = 0;
@@ -55,12 +58,36 @@ public class AStar {
             int x = l.getBlockX();
             int y = l.getBlockY();
             int z = l.getBlockZ();
+
+            if (!isVisited(x, y + 1, z)
+                    && isBlockFree(x, y + 2, z)
+                    && Storage.self.getEnvironment().getBlockAt(x, y, z).getTypeId() == 65) {
+                /*
+                    There is a ladder leading up
+                 */
+                GeometricPath temp = new GeometricPath(l.getRelative(0, 1, 0).centerHorizontally(), bestPath);
+                searchPerimeter.add(new GeometricPath(l.getRelative(0, 1, 0).centerHorizontally(), temp));
+                markVisited(x, y + 1, z);
+            }
+
+            if (!isVisited(x, y - 1, z)
+                    && isBlockFree(x, y - 1, z)
+                    && Storage.self.getEnvironment().getBlockAt(x, y - 1, z).getTypeId() == 65) {
+                /*
+                    There is a ladder leading down
+                 */
+                GeometricPath temp = new GeometricPath(l.getRelative(0, -1, 0).centerHorizontally(), bestPath);
+                searchPerimeter.add(new GeometricPath(l.getRelative(0, -1, 0).centerHorizontally(), temp));
+                markVisited(x, y - 1, z);
+            }
+
             for (int i = 0; i < 4; i++) {
                 int dx = RELATIVE_VECTORS[i][0];
                 int dz = RELATIVE_VECTORS[i][1];
-                if (!isBlockFree(x + dx, y + 1, z + dz)) {
+                if (!isBlockFree(x + dx, y + 1, z + dz)
+                        || new Location(x, y, z).distanceTo(myLocation) > MAX_DISTANCE) {
                     /*
-                    Block in front of face is not empty or path has been visited.
+                    Block in front of face is not empty, too far away or path has been visited.
                     No possible paths in this direction
                      */
                     continue;
@@ -70,7 +97,7 @@ public class AStar {
                     /*
                     Blocks in front of face and feet are free. Consider some paths
                      */
-                    if (!isVisited(x + dx, y, z + dz) && !isBlockFree(x + dx, y - 1, z + dz)) {
+                    if (!isVisited(x + dx, y, z + dz) && isBlockWalkable(x + dx, y - 1, z + dz)) {
                         /*
                         Terrain ahead has solid ground. Consider this cardinal direction
                          */
@@ -114,7 +141,7 @@ public class AStar {
             }
         }
     }
-    
+
     public static final int getRuntimeCounter() {
         return runtimeCounter;
     }
@@ -122,6 +149,13 @@ public class AStar {
     private static final void consider(int x, int y, int z, GeometricPath pathToExtend) {
         markVisited(x, y, z);
         searchPerimeter.add(new GeometricPath(new Location(x, y, z).centerHorizontally(), pathToExtend));
+    }
+
+    private static final boolean isBlockWalkable(int x, int y, int z) {
+        if (Storage.self.getEnvironment().getBlockAt(x, y, z).getTypeId() == 65) {
+            return true;
+        }
+        return !isBlockFree(x, y, z) && !FORBIDDEN_BLOCKS.contains(Storage.self.getEnvironment().getBlockAt(x, y, z).getTypeId());
     }
 
     private static final boolean isBlockFree(int x, int y, int z) {
@@ -148,7 +182,7 @@ public class AStar {
 
         private final Location targetLoc;
         private final double aggressiveness = 2;
-        
+
         public EuclideanHeuristic(Location targetLoc) {
             this.targetLoc = targetLoc;
         }
@@ -170,10 +204,19 @@ public class AStar {
         NONSOLID_BLOCKS = new HashSet<>();
         NONSOLID_BLOCKS.add(0);
         NONSOLID_BLOCKS.add(6);
+        NONSOLID_BLOCKS.add(9);
         NONSOLID_BLOCKS.add(31);
         NONSOLID_BLOCKS.add(37);
         NONSOLID_BLOCKS.add(38);
         NONSOLID_BLOCKS.add(50);
+        NONSOLID_BLOCKS.add(59);
+        NONSOLID_BLOCKS.add(65);
         NONSOLID_BLOCKS.add(175);
+        FORBIDDEN_BLOCKS = new HashSet<>();
+        NONSOLID_BLOCKS.add(9);
+        NONSOLID_BLOCKS.add(11);
+        NONSOLID_BLOCKS.add(85);
+        NONSOLID_BLOCKS.add(107);
+        NONSOLID_BLOCKS.add(113);
     }
 }

@@ -14,8 +14,6 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.List;
-import net.objecthunter.exp4j.Expression;
-import net.objecthunter.exp4j.ExpressionBuilder;
 import zbottestplugin.HTTP.HTTPResponse;
 import zedly.zbot.ClientSettings;
 import zedly.zbot.entity.Entity;
@@ -72,14 +70,6 @@ public class CommandProcessor {
                     ex.printStackTrace();
                     return;
                 }
-            case "calc":
-                if (args.length <= 1) {
-                    respond(respondTo, "calc {expression}");
-                    return;
-                }
-                Expression exp = new ExpressionBuilder(command.substring(5)).build();
-                respond(respondTo, exp.evaluate() + "");
-                break;
             case "trans":
             case "translate":
                 if (args.length < 2) {
@@ -122,7 +112,7 @@ public class CommandProcessor {
                 respond(respondTo, "Translating " + args[1] + " from " + sourceLanguage + " to " + targetLanguage + "!");
                 break;
         }
-        if (player.equals("brainiac94") || player.equals("Veresen")) {
+        if (player.equals("brainiac94") || player.equals("Veresen") || player.equals("SayakaMiki_")) {
             switch (args[0]) {
                 case "entity":
                     Entity ent = null;
@@ -638,6 +628,12 @@ public class CommandProcessor {
                                 break;
                         }
                     }
+                    break;
+                    
+                case "farm":
+                    TaskFarm farm = new TaskFarm();
+                    int id = Storage.self.scheduleSyncRepeatingTask(Storage.plugin, farm, 250, 250);
+                    farm.identify(id);
                     break;
                 case "exit":
                     Storage.self.shutdown();

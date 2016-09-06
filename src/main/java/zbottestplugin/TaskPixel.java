@@ -8,8 +8,10 @@ package zbottestplugin;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import javax.imageio.ImageIO;
 import zedly.zbot.Location;
+import zedly.zbot.block.Material;
 
 /**
  *
@@ -23,9 +25,11 @@ public class TaskPixel extends Thread {
     String filename;
     String[] args;
     BufferedImage img;
+    private final HashMap<Integer, ItemStack> itemMap = new HashMap<>();
 
     public TaskPixel(String[] args) {
         this.args = args;
+        populateMap();
     }
 
     public void run() {
@@ -111,53 +115,71 @@ public class TaskPixel extends Thread {
     }
 
     private void selectPixelBlock(int rgb) {
+        ItemStack stack = itemMap.get(rgb);
+        if(stack == null) {
+            System.out.println("Unknown RGB value " + Integer.toHexString(rgb));
+            stack = itemMap.get(0xFFFFFF);
+        }
+        InventoryUtil.findAndSelect(stack.getMaterial(), stack.getDamage());
+
+        
         switch (rgb & 0xFFFFFF) {
-            case 0xFFFFFF: // Glass
-                Storage.self.selectSlot(0);
-                break;
-            case 0x1A1717: // Black Wool
-            case 0xA32C28: // Red Wool
-                Storage.self.selectSlot(1);
-                break;
-            case 0x263399: // Blue Wool
-            case 0xEA7F36: // Orange Wool
-                Storage.self.selectSlot(2);
-                break;
             case 0x404040:
-            case 0x277495: // Cyan Wool
-            case 0x55331B: // Brown Wool
             case 0x7D7D7D: // Stone
-            case 0x14121D: // Obsidian
-                Storage.self.selectSlot(3);
-                break;
             case 0x6080C0:
-            case 0x678AD3: // Light Blue Wool
-            case 0x8135C3: // Purple Wool
-            case 0xC2B41C: // Yellow Wool
-            case 0xBE4BC8: // Magenta Wool
-                Storage.self.selectSlot(4);
-                break;
             case 0xA0A0A4:
-            case 0x9EA5A5: //Light Gray Wool
-                Storage.self.selectSlot(5);
-                break;
             case 0x204080:
-            case 0x424242: // Gray Wool
-            case 0x3BBC2F: // Lime Wool
-                Storage.self.selectSlot(6);
-                break;
             case 0x2040C0:
             case 0xdbdbdb: // White Wool
-            case 0x000000: // Shit
-                Storage.self.selectSlot(7);
-                break;
             case 0xEFFBFB:
-            case 0x63DBD5: // Diamond Block
-                Storage.self.selectSlot(8);
-                break;
-            default:
-                System.out.println("Unknown RGB value " + Integer.toHexString(rgb));
         }
+    }
+
+    private class ItemStack {
+
+        private final Material mat;
+        private final short damage;
+
+        public ItemStack(Material mat, short damage) {
+            this.mat = mat;
+            this.damage = damage;
+        }
+
+        public ItemStack(Material mat) {
+            this.mat = mat;
+            this.damage = 0;
+        }
+
+        public Material getMaterial() {
+            return mat;
+        }
+
+        public short getDamage() {
+            return damage;
+        }
+    }
+
+    private void populateMap() {
+        itemMap.put(0xFFFFFF, new ItemStack(Material.GLASS));
+        itemMap.put(0x63DBD5, new ItemStack(Material.DIAMOND_BLOCK));
+        itemMap.put(0x14121D, new ItemStack(Material.OBSIDIAN));
+        itemMap.put(0x1A1717, new ItemStack(Material.WOOL, (short) 15)); // Black
+        itemMap.put(0xA32C28, new ItemStack(Material.WOOL, (short) 14)); // Red
+        itemMap.put(0xA32C28, new ItemStack(Material.WOOL, (short) 13)); // Orange
+        itemMap.put(0x55331B, new ItemStack(Material.WOOL, (short) 12)); // Brown
+        itemMap.put(0x263399, new ItemStack(Material.WOOL, (short) 11)); // Blue
+        itemMap.put(0x8135C3, new ItemStack(Material.WOOL, (short) 10)); // Purple
+        itemMap.put(0x277495, new ItemStack(Material.WOOL, (short) 9)); // Cyan
+        itemMap.put(0x9EA5A5, new ItemStack(Material.WOOL, (short) 8)); // LightGray
+        itemMap.put(0x424242, new ItemStack(Material.WOOL, (short) 7)); // Gray
+        itemMap.put(0xA32C28, new ItemStack(Material.WOOL, (short) 6)); // Red
+        itemMap.put(0x3BBC2F, new ItemStack(Material.WOOL, (short) 5)); // Lime
+        itemMap.put(0xC2B41C, new ItemStack(Material.WOOL, (short) 4)); // Yellow
+        itemMap.put(0x678AD3, new ItemStack(Material.WOOL, (short) 3)); // LightBlue
+        itemMap.put(0xBE4BC8, new ItemStack(Material.WOOL, (short) 2)); // Magenta
+        itemMap.put(0xEA7F36, new ItemStack(Material.WOOL, (short) 1)); // Orange
+        itemMap.put(0xDBDBDB, new ItemStack(Material.WOOL, (short) 0)); // White
+
     }
 
 }
