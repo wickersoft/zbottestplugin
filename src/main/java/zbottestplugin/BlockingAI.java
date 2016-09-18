@@ -7,6 +7,7 @@ package zbottestplugin;
 
 import edu.kit.informatik.AStar;
 import edu.kit.informatik.GeometricPath;
+import java.util.LinkedList;
 import java.util.List;
 import zedly.zbot.Location;
 import zedly.zbot.util.Vector;
@@ -17,6 +18,7 @@ import zedly.zbot.util.Vector;
  */
 public class BlockingAI implements Runnable {
 
+    private final double stepResolution = 0.4;
     private final Object lock = "";
 
     public void run() {
@@ -25,25 +27,31 @@ public class BlockingAI implements Runnable {
         }
     }
 
-    public void moveTo(Location loc) throws InterruptedException {
-        GeometricPath path = AStar.getPath(loc);
-        List<Location> nodes = path.getLocations();
-        double yaw;
-        for (Location node : nodes) {
-            Location oldLoc = Storage.self.getLocation();
+    public void moveTo(Location target) throws InterruptedException {
+        List<Location> nodes;
+        Location oldLoc = Storage.self.getLocation();
+        if (oldLoc.distanceTo(target) <= 1) {
+            nodes = new LinkedList<>();
+            nodes.add(target);
+        } else {
+            GeometricPath path = AStar.getPath(target);
+            nodes = path.getLocations();
+        }
+        double yaw = oldLoc.getYaw();
+        for (Location loc : nodes) {
             Vector direction = Storage.self.getLocation().vectorTo(loc);
-            if (direction.getRadius() != 0) {
+            if (direction.getHorizontalLength() != 0) {
                 yaw = direction.getYaw();
             }
-
-            int steps = (int) Math.floor(direction.getRadius() / 0.4);
+            int steps = (int) Math.floor(direction.getLength() / stepResolution);
             direction = direction.normalize();
             for (int i = 0; i < steps; i++) {
-                Storage.self.moveTo(oldLoc.getRelative(direction.multiply(i * 0.4)));
+                Storage.self.moveTo(oldLoc.getRelative(direction.multiply(i * stepResolution)).withYawPitch(yaw, oldLoc.getPitchTo(loc)));
                 tick();
             }
             Storage.self.moveTo(loc);
             tick();
+            oldLoc = loc;
         }
     }
 

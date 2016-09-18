@@ -10,6 +10,9 @@ import edu.kit.informatik.GeometricPath;
 import java.util.List;
 import zedly.zbot.Location;
 import zedly.zbot.block.Material;
+import zedly.zbot.event.EventHandler;
+import zedly.zbot.event.Listener;
+import zedly.zbot.event.SelfTeleportEvent;
 
 /**
  *
@@ -18,40 +21,52 @@ import zedly.zbot.block.Material;
 public class ThreadTaskTest extends Thread {
 
     private final BlockingAI ai = new BlockingAI();
-    private boolean alive = true;
-
+    private final BumpDetector bumpDetector = new BumpDetector();
     private final int xStart = -834;
-    private final int zStart = 4824;
+    private final int zStart = 4822;
+    private final int floorHeight = 69;
     private final int xEnd = -819;
     private final int zEnd = 4841;
 
-    public void run() {
-        Storage.self.scheduleSyncRepeatingTask(Storage.plugin, ai, 100, 100);
-        try {
-            for (int xLoc = xStart; xLoc < xEnd; xLoc++) {
-                for (int zLoc = zStart; zLoc < zEnd; zLoc++) {
-                    Location target = new Location(xLoc, 69, zLoc).centerHorizontally();
-                    
-                    GeometricPath path = AStar.getPath(target);
-                    List<Location> nodes = path.getLocations();
-                    for (Location node : nodes) {
-                        ai.moveTo(node);
-                    }
-                    for (int i = 0; i < 19; i++) {
-                        Location loc = new Location(xLoc + xOff, 69, 4823 + i).centerHorizontally();
-                        if (Storage.self.getEnvironment().getBlockAt(loc).getTypeId() == 17) {
-                            harvestTree(loc);
-                        } else {
-                            clearLeaves(loc);
-                        }
-                    }
-                }
-            }
+    private boolean alive = true;
+    private int aiTaskId = -1;
 
+    public void run() {
+        aiTaskId = Storage.self.scheduleSyncRepeatingTask(Storage.plugin, ai, 100, 100);
+        Storage.self.registerEvents(bumpDetector);
+        try {
+
+            
+            
+            unregister();
         } catch (Exception ex) {
             ex.printStackTrace();
             StackTraceElement ste = ex.getStackTrace()[0];
+            unregister();
             Storage.self.sendChat("rip thread :(       " + ste.getClassName() + ":" + ste.getLineNumber());
+        }
+    }
+
+    private void harvest() throws InterruptedException {
+        for (int xLoc = xStart; xLoc < xEnd; xLoc += 2) {
+            for (int zLoc = zStart; zLoc < zEnd; zLoc++) {
+                Location target = new Location(xLoc, floorHeight, zLoc).centerHorizontally();
+
+                GeometricPath path = AStar.getPath(target);
+                List<Location> nodes = path.getLocations();
+                for (Location node : nodes) {
+                    if (node.distanceSquareTo(target) < 1) {
+                        break;
+                    }
+                    ai.moveTo(node);
+                }
+
+                if (Storage.self.getEnvironment().getBlockAt(target).getTypeId() == 17) {
+                    harvestTree(target);
+                } else {
+                    clearLeaves(target);
+                }
+            }
         }
     }
 
@@ -67,7 +82,7 @@ public class ThreadTaskTest extends Thread {
                     return;
                 }
             }
-            ai.breakBlock(logLocation, 500);
+            ai.breakBlock(logLocation, 600);
             for (int j = 0; j < 5; j++) {
                 ai.tick();
             }
@@ -91,11 +106,35 @@ public class ThreadTaskTest extends Thread {
         ai.tick();
     }
 
+    private void unregister() {
+        Storage.self.cancelTask(aiTaskId);
+        Storage.self.unregisterEvents(bumpDetector);
+    }
+
     private synchronized boolean isRunning() {
         return alive;
     }
 
     public synchronized void kill() {
         alive = false;
+    }
+
+    private class BumpDetector implements Listener {
+
+        private boolean bumped = false;
+
+        @EventHandler
+        public synchronized void onTeleport(SelfTeleportEvent evt) {
+            bumped = true;
+        }
+
+        public synchronized boolean hasBumped() {
+            if (bumped) {
+                bumped = false;
+                return true;
+            }
+            return false;
+        }
+
     }
 }
