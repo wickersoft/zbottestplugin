@@ -28,14 +28,33 @@ public class Watcher implements Listener {
 
     private final Pattern p = Pattern.compile("^<(.*?)> (.*)$");
     private final Pattern pmp = Pattern.compile("^\\[(.*?) -> me\\] (.*)$");
-    private final Pattern cp = Pattern.compile("^(sm|ms|sayaka\\,|bb|rb) (.+)");
-    private String rp = "\\[.+\\] ";
+    private final Pattern cp;
+    private final Pattern welcomePattern = Pattern.compile("^Everybody welcome (.+) to the server!$");
+    private final String rp;
 
     private final ConcurrentLinkedQueue<Location> trackLocations = new ConcurrentLinkedQueue<>();
     private Location lastLoc;
 
-    public void useNyanRankPattern() {
-        rp = "\\(.+\\)";
+    public Watcher() {
+        switch (Storage.self.getServerConnection().getUsername()) {
+            case "SayakaMiki_":
+                cp = Pattern.compile("^sm (.+)");
+                break;
+            case "Brainibot":
+                cp = Pattern.compile("^bb (.+)");
+                break;
+            case "Swibbers":
+                cp = Pattern.compile("^sw (.+)");
+                break;
+            default:
+                cp = Pattern.compile("^zb (.+)");
+                break;
+        }
+        if (Storage.self.getServerConnection().getIp().equals("85.131.153.100")) {
+            rp = "\\(.+\\)";
+        } else {
+            rp = "\\[.+\\] ";
+        }
     }
 
     @EventHandler
@@ -46,7 +65,7 @@ public class Watcher implements Listener {
             Storage.os.write(10); // \n
         } catch (IOException ex) {
         }
-        
+
         if (evt.getMessage().startsWith("[LOTTERY]") && (evt.getMessage().contains("Congratulations")
                 || evt.getMessage().contains("Draw"))) {
             Storage.self.scheduleSyncDelayedTask(Storage.plugin, (Runnable) () -> {
@@ -60,16 +79,37 @@ public class Watcher implements Listener {
             return;
         }
 
-        Matcher m = p.matcher(evt.getMessage());
+        Matcher m = welcomePattern.matcher(evt.getMessage());
+        if (m.find()) {
+            String user = m.group(1);
+            Storage.self.scheduleSyncDelayedTask(Storage.plugin, () -> {
+                Storage.self.sendChat("/msg " + user + " Welcome, " + user + "!");
+            }, 12000);
+            Storage.self.scheduleSyncDelayedTask(Storage.plugin, () -> {
+                Storage.self.sendChat("/msg " + user + " We are a freebuild survival server");
+            }, 17000);
+            Storage.self.scheduleSyncDelayedTask(Storage.plugin, () -> {
+                Storage.self.sendChat("/msg " + user + " Make your way out of the spawn city to start building");
+            }, 22000);
+            Storage.self.scheduleSyncDelayedTask(Storage.plugin, () -> {
+                Storage.self.sendChat("/msg " + user + " Use one of the warps on the blue wall, or simply walk");
+            }, 27000);
+            Storage.self.scheduleSyncDelayedTask(Storage.plugin, () -> {
+                Storage.self.sendChat("/msg " + user + " No plots required, no griefing. Take a look at our /rules :)");
+            }, 32000);
+            return;
+        }
+
+        m = p.matcher(evt.getMessage());
         if (m.find()) {
             String user = m.group(1).replaceAll(rp, "");
             String message = m.group(2);
 
             Matcher cm = cp.matcher(message);
             if (cm.find()) {
-                System.out.println(cm.group(1) + " " + cm.group(2));
                 try {
-                    CommandProcessor.onCommand(user, cm.group(2), false);
+                    CommandProcessor.onCommand(user, cm.group(1), false);
+                    DijkstraCommands.onCommand(user, cm.group(1), false);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     Storage.self.sendChat("An internal error occurred: " + ex.getClass());

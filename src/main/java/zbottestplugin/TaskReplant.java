@@ -27,7 +27,7 @@ public class TaskReplant extends HierarchicalTask {
         if(tick == 0) {
             InventoryUtil.findAndSelect(Material.WHEAT_SEEDS);
             Storage.self.breakBlock(x, y, z);
-        } else if(tick == 5) {
+        } else if(tick == 2) {
             Storage.self.placeBlock(x, y - 1, z);
             finish();
         }

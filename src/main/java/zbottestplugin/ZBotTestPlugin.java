@@ -33,9 +33,6 @@ public class ZBotTestPlugin extends ZBotPlugin {
         loadResources();
         Storage.translatorThread.start();
         watcher = new Watcher();
-        if (self.getServerConnection().getIp().equals("85.131.153.100")) {
-            watcher.useNyanRankPattern();
-        }
         self.registerEvents(Storage.recorder);
         self.registerEvents(watcher);
         try {

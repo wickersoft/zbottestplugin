@@ -49,7 +49,7 @@ public class AStar {
             }
             //System.out.println(bestPath.getEndPoint());
             Location l = bestPath.getEndPoint();
-            if (l.distanceTo(target) < 1) {
+            if (l.distanceTo(target) <= 1.05) {
                 return new GeometricPath(target, bestPath);
             } else if (bestPath.getLength() > MAX_PATH_WEIGHT) {
                 return null;
@@ -211,12 +211,13 @@ public class AStar {
         NONSOLID_BLOCKS.add(50);
         NONSOLID_BLOCKS.add(59);
         NONSOLID_BLOCKS.add(65);
+        NONSOLID_BLOCKS.add(68);
         NONSOLID_BLOCKS.add(175);
         FORBIDDEN_BLOCKS = new HashSet<>();
-        NONSOLID_BLOCKS.add(9);
-        NONSOLID_BLOCKS.add(11);
-        NONSOLID_BLOCKS.add(85);
-        NONSOLID_BLOCKS.add(107);
-        NONSOLID_BLOCKS.add(113);
+        FORBIDDEN_BLOCKS.add(9);
+        FORBIDDEN_BLOCKS.add(11);
+        FORBIDDEN_BLOCKS.add(85);
+        FORBIDDEN_BLOCKS.add(107);
+        FORBIDDEN_BLOCKS.add(113);
     }
 }
