@@ -128,15 +128,17 @@ public class AStar {
                         searchPerimeter.add(new GeometricPath(l.getRelative(dx + ddx, 0, dz + ddz).centerHorizontally(), bestPath));
                         markVisited(x + dx + ddx, y, z + dz + ddz);
                     }
-                } else if (!isVisited(x + dx, y + 1, z + dz)
-                        && isBlockFree(x, y + 2, z)
-                        && isBlockFree(x + dx, y + 2, z + dx)) {
-                    /*
+                } else {
+                     if (!isVisited(x + dx, y + 1, z + dz)
+                            && isBlockFree(x, y + 2, z)
+                            && isBlockFree(x + dx, y + 2, z + dz)) {
+                        /*
                     Terrain ahead goes up by one block. Consider a step up
-                     */
-                    GeometricPath temp = new GeometricPath(l.getRelative(0, 1, 0).centerHorizontally(), bestPath);
-                    searchPerimeter.add(new GeometricPath(l.getRelative(dx, 1, dz).centerHorizontally(), temp));
-                    markVisited(x + dx, y + 1, z + dz);
+                         */
+                        GeometricPath temp = new GeometricPath(l.getRelative(0, 1, 0).centerHorizontally(), bestPath);
+                        searchPerimeter.add(new GeometricPath(l.getRelative(dx, 1, dz).centerHorizontally(), temp));
+                        markVisited(x + dx, y + 1, z + dz);
+                    }
                 }
             }
         }
@@ -210,6 +212,7 @@ public class AStar {
         NONSOLID_BLOCKS.add(38);
         NONSOLID_BLOCKS.add(50);
         NONSOLID_BLOCKS.add(59);
+        NONSOLID_BLOCKS.add(63);
         NONSOLID_BLOCKS.add(65);
         NONSOLID_BLOCKS.add(68);
         NONSOLID_BLOCKS.add(175);
@@ -218,6 +221,11 @@ public class AStar {
         FORBIDDEN_BLOCKS.add(11);
         FORBIDDEN_BLOCKS.add(85);
         FORBIDDEN_BLOCKS.add(107);
+        FORBIDDEN_BLOCKS.add(183);
+        FORBIDDEN_BLOCKS.add(184);
+        FORBIDDEN_BLOCKS.add(185);
+        FORBIDDEN_BLOCKS.add(186);
+        FORBIDDEN_BLOCKS.add(187);
         FORBIDDEN_BLOCKS.add(113);
     }
 }
