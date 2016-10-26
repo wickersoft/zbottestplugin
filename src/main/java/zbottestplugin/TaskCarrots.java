@@ -9,10 +9,11 @@ package zbottestplugin;
  *
  * @author Dennis
  */
-public class RailTask implements Runnable {
+public class TaskCarrots extends Thread {
     
-    public void run() {
-        
-    }
+    
+    
+    
+    
     
 }

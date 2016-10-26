@@ -32,6 +32,8 @@ public class Storage {
     public static Graph graph;
     public static TaskDefender defender = new TaskDefender();
     public static int debugEntity = 0;
+    public static TaskFish fish;
+    public static int zombieTaskId = -1;
     
     
     static {

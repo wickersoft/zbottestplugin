@@ -37,6 +37,15 @@ public class BlockingAI implements Runnable {
             GeometricPath path = AStar.getPath(target);
             nodes = path.getLocations();
         }
+        followPath(nodes);
+    }
+
+    public void followPath(GeometricPath path) throws InterruptedException {
+        followPath(path.getLocations());
+    }
+
+    public void followPath(List<Location> nodes) throws InterruptedException {
+        Location oldLoc = Storage.self.getLocation();
         double yaw = oldLoc.getYaw();
         for (Location loc : nodes) {
             Vector direction = Storage.self.getLocation().vectorTo(loc);
@@ -46,10 +55,10 @@ public class BlockingAI implements Runnable {
             int steps = (int) Math.floor(direction.getLength() / stepResolution);
             direction = direction.normalize();
             for (int i = 0; i < steps; i++) {
-                Storage.self.moveTo(oldLoc.getRelative(direction.multiply(i * stepResolution)).withYawPitch(yaw, oldLoc.getPitchTo(loc)));
+                Storage.self.moveTo(oldLoc.getRelative(direction.multiply(i * stepResolution)).withYawPitch(180 / Math.PI * yaw, oldLoc.getPitchTo(loc)));
                 tick();
             }
-            Storage.self.moveTo(loc);
+            Storage.self.moveTo(loc.withYawPitch(180 / Math.PI * yaw, oldLoc.getPitchTo(loc)));
             tick();
             oldLoc = loc;
         }
@@ -75,10 +84,21 @@ public class BlockingAI implements Runnable {
     public void breakBlock(Location loc) throws InterruptedException {
         breakBlock(loc, 1000);
     }
+    
+    public void clickBlock(Location loc) throws InterruptedException {
+        Storage.self.clickBlock(loc);
+        tick();
+    }
 
     public void tick() throws InterruptedException {
         synchronized (lock) {
             lock.wait();
+        }
+    }
+    
+    public void tick(int ticks) throws InterruptedException {
+        for(int i = 0; i < ticks; i++) {
+            tick();
         }
     }
 

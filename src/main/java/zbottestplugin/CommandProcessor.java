@@ -46,6 +46,13 @@ public class CommandProcessor {
                 break;
             case "clock":
                 respond(respondTo, "" + System.currentTimeMillis());
+                break;
+            case "forum":
+                respond(respondTo, "Official Forum: http://nyanpig-forum.enjin.com/forum");
+                break;
+            case "fb":
+                respond(respondTo, "NyanCat Server on Facebook: https://www.facebook.com/groups/406113456101737/");
+                break;
             case "google":
                 if (args.length == 1) {
                     respond(respondTo, "google {query}");
@@ -70,6 +77,10 @@ public class CommandProcessor {
                     ex.printStackTrace();
                     return;
                 }
+            case "wheat":
+                ThreadWheatFast twf = new ThreadWheatFast();
+                twf.start();
+                break;
             case "trans":
             case "translate":
                 if (args.length < 2) {
@@ -257,7 +268,10 @@ public class CommandProcessor {
                     }
                     break;
                 case "slot":
-                    if (args.length == 2) {
+                    if (args.length == 1) {
+                        ItemStack is = Storage.self.getInventory().getItemInHand();
+                        respond(respondTo, is.getAmount() + "x " + is.getTypeId() + ":" + is.getDamageValue());
+                    } else if (args.length == 2) {
                         ItemStack is = Storage.self.getInventory().getSlot(Integer.parseInt(args[1]));
                         respond(respondTo, is.getAmount() + "x " + is.getTypeId() + ":" + is.getDamageValue());
                     }
@@ -381,13 +395,57 @@ public class CommandProcessor {
                     }
                     break;
                 case "farm":
-                    TaskFarm farm = new TaskFarm();
-                    int id = Storage.self.scheduleSyncRepeatingTask(Storage.plugin, farm, 100, 100);
-                    farm.identify(id);
+                    
+                    
+                    
+                    
+                    break;
+                case "zombies":
+                    TaskZombieFilter filter = new TaskZombieFilter();
+                    if (Storage.zombieTaskId == -1) {
+                        Storage.zombieTaskId = Storage.self.scheduleSyncRepeatingTask(Storage.plugin, filter, 0, 300);
+                    } else {
+                        Storage.self.cancelTask(Storage.zombieTaskId);
+                        Storage.zombieTaskId = -1;
+                    }
                     break;
                 case "thread":
                     ThreadTaskTest tf = new ThreadTaskTest();
                     tf.start();
+                    break;
+                case "welcome":
+                    if (args.length >= 2) {
+                        String user = args[1];
+                        Storage.self.scheduleSyncDelayedTask(Storage.plugin, () -> {
+                            Storage.self.sendChat("/msg " + user + " Welcome, " + user + "!");
+                        }, 2000);
+                        Storage.self.scheduleSyncDelayedTask(Storage.plugin, () -> {
+                            Storage.self.sendChat("/msg " + user + " We are a freebuild survival server");
+                        }, 9000);
+                        Storage.self.scheduleSyncDelayedTask(Storage.plugin, () -> {
+                            Storage.self.sendChat("/msg " + user + " Make your way out of the spawn city to start building");
+                        }, 16000);
+                        Storage.self.scheduleSyncDelayedTask(Storage.plugin, () -> {
+                            Storage.self.sendChat("/msg " + user + " Use one of the warps on the blue wall, or simply walk");
+                        }, 23000);
+                        Storage.self.scheduleSyncDelayedTask(Storage.plugin, () -> {
+                            Storage.self.sendChat("/msg " + user + " No plots required, no griefing. Take a look at our /rules :)");
+                        }, 30000);
+                    }
+                    break;
+                case "fish":
+                    if (Storage.fish == null) {
+                        Storage.fish = new TaskFish();
+                        Storage.fish.start();
+                        Storage.self.sendChat("Now fishing");
+                    } else {
+                        Storage.fish.close();
+                        Storage.fish = null;
+                        Storage.self.sendChat("Enough fishing..");
+                    }
+                    break;
+                case "cure":
+                    new TaskApple().start();
                     break;
                 case "exit":
                     Storage.self.shutdown();

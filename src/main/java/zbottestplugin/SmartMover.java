@@ -9,9 +9,6 @@ package zbottestplugin;
  *
  * @author Dennis
  */
-public class HierarchicalStateMachine {
-    
-    
-    
+public class SmartMover {
     
 }

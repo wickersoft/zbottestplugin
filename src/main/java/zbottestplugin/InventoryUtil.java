@@ -6,6 +6,7 @@
 package zbottestplugin;
 
 import zedly.zbot.block.Material;
+import zedly.zbot.inventory.ItemStack;
 
 /**
  *
@@ -16,6 +17,9 @@ public class InventoryUtil {
     private static int nextSlot = 0;
 
     public static boolean findAndSelect(Material mat) {
+        if (Storage.self.getInventory().getItemInHand().getType() == mat) {
+            return true;
+        }
         for (int i = 36; i <= 44; i++) {
             if (Storage.self.getInventory().getSlot(i).getType() == mat) {
                 Storage.self.selectSlot(i - 36);
@@ -36,6 +40,10 @@ public class InventoryUtil {
     }
 
     public static boolean findAndSelect(Material mat, short damage) {
+        if (Storage.self.getInventory().getItemInHand().getType() == mat
+                && Storage.self.getInventory().getItemInHand().getDamageValue() == damage) {
+            return true;
+        }
         for (int i = 36; i <= 44; i++) {
             if (Storage.self.getInventory().getSlot(i).getType() == mat
                     && Storage.self.getInventory().getSlot(i).getDamageValue() == damage) {
@@ -55,5 +63,27 @@ public class InventoryUtil {
             }
         }
         return false;
+    }
+
+    public static int count(Material mat) {
+        int count = 0;
+        for (int i = 9; i <= 44; i++) {
+            ItemStack is = Storage.self.getInventory().getSlot(i);
+            if (is.getType() == mat) {
+                count += is.getAmount();
+            }
+        }
+        return count;
+    }
+
+    public static int count(Material mat, short damage) {
+        int count = 0;
+        for (int i = 9; i < 44; i++) {
+            ItemStack is = Storage.self.getInventory().getSlot(i);
+            if (is.getType() == mat && is.getDamageValue() == damage) {
+                count += is.getAmount();
+            }
+        }
+        return count;
     }
 }

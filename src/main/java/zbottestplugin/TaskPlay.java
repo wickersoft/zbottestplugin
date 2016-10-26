@@ -46,7 +46,7 @@ public class TaskPlay extends Thread {
                     Storage.self.sendChat("Invalid recording! (2)");
                     return;
                 }
-                locations[i] = new Location(Double.parseDouble(line[0]), Double.parseDouble(line[1]), Double.parseDouble(line[2]), Double.parseDouble(line[3]), Double.parseDouble(line[4]), i == line.length - 2);
+                locations[i] = new Location(Double.parseDouble(line[0]), Double.parseDouble(line[1]), Double.parseDouble(line[2]), Double.parseDouble(line[3]), Double.parseDouble(line[4]));
             }
         } catch (NumberFormatException ex) {
             Storage.self.sendChat("Invalid recording! (3)");

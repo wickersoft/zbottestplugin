@@ -40,7 +40,7 @@ public class MotionRecorder implements Listener {
             while (following && trackingQueue.size() > followDistance) {
                 Location l = trackingQueue.tryDeq().getLocation();
                 Vector v = Storage.self.getLocation().vectorTo(l).toSpherical();
-                Storage.self.moveTo(new Location(l.getX(), l.getY(), l.getZ(), 180.0 / Math.PI * v.getYaw(),  180.0 / Math.PI * v.getPitch(), false));
+                Storage.self.moveTo(new Location(l.getX(), l.getY(), l.getZ(), 180.0 / Math.PI * v.getYaw(),  180.0 / Math.PI * v.getPitch()));
             }
             lastTrackNode = node;
         }

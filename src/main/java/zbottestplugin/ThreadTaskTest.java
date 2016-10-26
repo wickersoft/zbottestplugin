@@ -7,12 +7,16 @@ package zbottestplugin;
 
 import edu.kit.informatik.AStar;
 import edu.kit.informatik.GeometricPath;
+import java.util.LinkedList;
 import java.util.List;
+import zedly.zbot.EntityType;
 import zedly.zbot.Location;
 import zedly.zbot.block.Material;
+import zedly.zbot.entity.Entity;
 import zedly.zbot.event.EventHandler;
 import zedly.zbot.event.Listener;
 import zedly.zbot.event.SelfTeleportEvent;
+import zedly.zbot.self.Self;
 
 /**
  *
@@ -27,47 +31,134 @@ public class ThreadTaskTest extends Thread {
     private final int floorHeight = 69;
     private final int xEnd = -819;
     private final int zEnd = 4841;
+    private final Self self = Storage.self;
+
+    private final Location stopLocation = new Location(-837, 69, 4822);
+    private final Location axeTesseractLocation = new Location(-837, 69, 4825);
+    private final Location saplingTesseractLocation = new Location(-837, 69, 4828);
+    private final Location logTesseractLocation = new Location(-837, 69, 4825);
 
     private boolean alive = true;
     private int aiTaskId = -1;
 
     public void run() {
-        aiTaskId = Storage.self.scheduleSyncRepeatingTask(Storage.plugin, ai, 100, 100);
-        Storage.self.registerEvents(bumpDetector);
+        aiTaskId = self.scheduleSyncRepeatingTask(Storage.plugin, ai, 100, 100);
+        self.registerEvents(bumpDetector);
+        int rowCount = 0;
         try {
+            int requiredAxes = 4 - InventoryUtil.count(Material.IRON_AXE);
+            if (requiredAxes >= 1) {
+                ai.moveTo(axeTesseractLocation);
+                self.sneak(true);
+                ai.tick();
+                for (int i = 0; i < requiredAxes; i++) {
+                    ai.clickBlock(axeTesseractLocation);
+                    ai.tick();
+                }
+                self.sneak(false);
+                ai.tick();
+            }
+            for (int xLoc = xStart; xLoc < xEnd; xLoc += 2) {
+                for (int zLoc = zStart; zLoc < zEnd; zLoc++) {
+                    Location target = new Location(xLoc, floorHeight, zLoc).centerHorizontally();
+                    GeometricPath path = AStar.getPath(target);
+                    List<Location> nodes = path.getLocations();
+                    for (Location node : nodes) {
+                        if (node.distanceSquareTo(target) < 1) {
+                            break;
+                        }
+                        ai.moveTo(node);
+                    }
 
-            
-            
+                    if (self.getEnvironment().getBlockAt(target).getTypeId() == 17) {
+                        harvestTree(target);
+                    } else {
+                        clearLeaves(target);
+                    }
+                }
+                if (++rowCount % 2 == 0) {
+                    collectItems();
+                }
+            }
+
+            ai.tick(1200);
+            collectItems();
+            ai.tick(1200);
+            collectItems();
+
+            replant();
+
+            ai.moveTo(saplingTesseractLocation);
+            InventoryUtil.findAndSelect(Material.SAPLING);
+            ai.tick();
+            self.placeBlock(saplingTesseractLocation);
+            ai.tick();
+            self.placeBlock(saplingTesseractLocation);
+
+            ai.moveTo(logTesseractLocation);
+            InventoryUtil.findAndSelect(Material.LOG);
+            ai.tick();
+            self.placeBlock(logTesseractLocation.getRelative(0, 1, 0));
+            ai.tick();
+            self.placeBlock(logTesseractLocation.getRelative(0, 1, 0));
+
+            ai.moveTo(stopLocation);
             unregister();
         } catch (Exception ex) {
             ex.printStackTrace();
             StackTraceElement ste = ex.getStackTrace()[0];
             unregister();
-            Storage.self.sendChat("rip thread :(       " + ste.getClassName() + ":" + ste.getLineNumber());
+            self.sendChat("rip thread :(       " + ste.getClassName() + ":" + ste.getLineNumber());
         }
     }
 
-    private void harvest() throws InterruptedException {
+    private void replant() throws InterruptedException {
+        ai.moveTo(saplingTesseractLocation);
+        for (int i = 0; i < 5; i++) {
+            ai.clickBlock(saplingTesseractLocation);
+            ai.tick();
+        }
+        ai.tick(10);
+
+        int numberOfSaplings = InventoryUtil.count(Material.SAPLING, (short) 0) + 1;
+
+        int sparsity = (int) Math.ceil(17.0 * 8.0 / (double) numberOfSaplings);
+        System.out.println("Sparsity " + sparsity + " / " + numberOfSaplings + " saplings");
         for (int xLoc = xStart; xLoc < xEnd; xLoc += 2) {
-            for (int zLoc = zStart; zLoc < zEnd; zLoc++) {
+            for (int zLoc = zStart; zLoc < zEnd; zLoc += sparsity) {
                 Location target = new Location(xLoc, floorHeight, zLoc).centerHorizontally();
-
-                GeometricPath path = AStar.getPath(target);
-                List<Location> nodes = path.getLocations();
-                for (Location node : nodes) {
-                    if (node.distanceSquareTo(target) < 1) {
-                        break;
-                    }
-                    ai.moveTo(node);
-                }
-
-                if (Storage.self.getEnvironment().getBlockAt(target).getTypeId() == 17) {
-                    harvestTree(target);
-                } else {
-                    clearLeaves(target);
-                }
+                ai.moveTo(target);
+                InventoryUtil.findAndSelect(Material.SAPLING);
+                ai.tick();
+                self.placeBlock(target.getRelative(0, -1, 0));
             }
         }
+        InventoryUtil.findAndSelect(Material.SAPLING);
+    }
+
+    private void collectItems() throws InterruptedException {
+        boolean foundCollectableItem;
+        do {
+            LinkedList<Location> nearbyItems = new LinkedList<>();
+            for (Entity ent : self.getEnvironment().getEntities()) {
+                if (ent.getType() == EntityType.ITEM
+                        && ent.getLocation().distanceSquareTo(self.getLocation()) < 600) {
+                    nearbyItems.add(ent.getLocation());
+                }
+            }
+            foundCollectableItem = false;
+            for (Location loc : nearbyItems) {
+                if (loc.getY() > floorHeight - 1 && loc.getY() < floorHeight + 2) {
+                    GeometricPath path = AStar.getPath(loc);
+                    if (path != null) {
+                        foundCollectableItem = true;
+                        ai.followPath(path);
+                        break;
+                    }
+                }
+            }
+
+        } while (foundCollectableItem);
     }
 
     private void harvestTree(Location treeLocation) throws InterruptedException {
@@ -76,39 +167,35 @@ public class ThreadTaskTest extends Thread {
         for (int i = 0; i < 5; i++) {
             Location logLocation = treeLocation.getRelative(0, i, 0);
             if (i == 2) {
-                Storage.self.moveTo(treeLocation);
+                self.moveTo(treeLocation);
                 ai.tick();
-                if (Storage.self.getEnvironment().getBlockAt(logLocation).getTypeId() != 17) {
+                if (self.getEnvironment().getBlockAt(logLocation).getTypeId() != 17) {
                     return;
                 }
             }
             ai.breakBlock(logLocation, 600);
-            for (int j = 0; j < 5; j++) {
-                ai.tick();
-            }
+            ai.tick(5);
 
         }
     }
 
     private void clearLeaves(Location treeLocation) throws InterruptedException {
-        Storage.self.selectSlot(0);
+        self.selectSlot(0);
         ai.tick();
         for (int i = 0; i < 2; i++) {
             Location leafLocation = treeLocation.getRelative(0, i, 0);
-            if (Storage.self.getEnvironment().getBlockAt(leafLocation).getTypeId() == Material.LEAVES.getTypeId()) {
+            if (self.getEnvironment().getBlockAt(leafLocation).getTypeId() != 0) {
                 ai.breakBlock(leafLocation, 1000);
-                for (int j = 0; j < 5; j++) {
-                    ai.tick();
-                }
+                ai.tick(5);
             }
         }
-        Storage.self.moveTo(treeLocation);
+        self.moveTo(treeLocation);
         ai.tick();
     }
 
     private void unregister() {
-        Storage.self.cancelTask(aiTaskId);
-        Storage.self.unregisterEvents(bumpDetector);
+        self.cancelTask(aiTaskId);
+        self.unregisterEvents(bumpDetector);
     }
 
     private synchronized boolean isRunning() {

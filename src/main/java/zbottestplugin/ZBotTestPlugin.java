@@ -35,11 +35,6 @@ public class ZBotTestPlugin extends ZBotPlugin {
         watcher = new Watcher();
         self.registerEvents(Storage.recorder);
         self.registerEvents(watcher);
-        try {
-            new File("logs").mkdir();
-            Storage.os = new BufferedOutputStream(new FileOutputStream(new File("logs/" + System.currentTimeMillis() + ".txt")));
-        } catch (IOException ex) {
-        }
     }
     
     @Override
@@ -47,23 +42,22 @@ public class ZBotTestPlugin extends ZBotPlugin {
         System.out.println("Joined! My EID: " + Storage.self.getEntityId());
         Storage.self.scheduleSyncRepeatingTask(this, Storage.synch, 50, 50);
         Storage.self.scheduleSyncRepeatingTask(this, Storage.roamer, 150, 150);
-        Storage.self.scheduleSyncRepeatingTask(this, Storage.defender, 500, 500);
+        //Storage.self.scheduleSyncRepeatingTask(this, Storage.defender, 500, 500);
     }
     
     @Override
     public void onQuit() {
         System.out.println("Quit!");
+        StackTraceElement[] trace = Thread.getAllStackTraces().get(Thread.currentThread());
+        for(StackTraceElement e : trace) {
+            System.out.println(e.toString());
+        }
     }
 
     @Override
     public void onDisable() {
         Storage.self.unregisterEvents(watcher);
         Storage.translatorThread.interrupt();
-        try {
-            Storage.os.flush();
-            Storage.os.close();
-        } catch (IOException ex) {
-        }
     }
 
     private void loadResources() {

@@ -59,17 +59,10 @@ public class Watcher implements Listener {
 
     @EventHandler
     public void onChat(ChatEvent evt) {
-        try {
-            Storage.os.write(evt.getMessage().getBytes());
-            Storage.os.write(13); // \r
-            Storage.os.write(10); // \n
-        } catch (IOException ex) {
-        }
-
         if (evt.getMessage().startsWith("[LOTTERY]") && (evt.getMessage().contains("Congratulations")
                 || evt.getMessage().contains("Draw"))) {
             Storage.self.scheduleSyncDelayedTask(Storage.plugin, (Runnable) () -> {
-                Storage.self.sendChat("/lot buy");
+                //Storage.self.sendChat("/lot buy");
             }, 10000);
             return;
         }
@@ -85,18 +78,6 @@ public class Watcher implements Listener {
             Storage.self.scheduleSyncDelayedTask(Storage.plugin, () -> {
                 Storage.self.sendChat("/msg " + user + " Welcome, " + user + "!");
             }, 12000);
-            Storage.self.scheduleSyncDelayedTask(Storage.plugin, () -> {
-                Storage.self.sendChat("/msg " + user + " We are a freebuild survival server");
-            }, 17000);
-            Storage.self.scheduleSyncDelayedTask(Storage.plugin, () -> {
-                Storage.self.sendChat("/msg " + user + " Make your way out of the spawn city to start building");
-            }, 22000);
-            Storage.self.scheduleSyncDelayedTask(Storage.plugin, () -> {
-                Storage.self.sendChat("/msg " + user + " Use one of the warps on the blue wall, or simply walk");
-            }, 27000);
-            Storage.self.scheduleSyncDelayedTask(Storage.plugin, () -> {
-                Storage.self.sendChat("/msg " + user + " No plots required, no griefing. Take a look at our /rules :)");
-            }, 32000);
             return;
         }
 
