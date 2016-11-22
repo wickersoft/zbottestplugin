@@ -12,7 +12,9 @@ import zedly.zbot.entity.Entity;
 import zedly.zbot.entity.Player;
 import zedly.zbot.event.EventHandler;
 import zedly.zbot.event.Listener;
+import zedly.zbot.event.entity.EntityAnimationEvent;
 import zedly.zbot.event.entity.EntityMoveEvent;
+import zedly.zbot.event.entity.PlayerSneakEvent;
 import zedly.zbot.util.Vector;
 
 /**
@@ -39,6 +41,7 @@ public class TaskHeadFollow implements Listener, Runnable {
             closestPlayerId = -1;
             closestPlayerDistance = Double.MAX_VALUE;
             lookAt(idleLocation);
+            Storage.self.sneak(false);
         } else {
             Player p = (Player) e;
             String playerName = Storage.self.getEnvironment().getPlayerNameByUUID(p.getUUID());
@@ -60,6 +63,20 @@ public class TaskHeadFollow implements Listener, Runnable {
                     lookAt(evt.getEntity().getLocation());
                 }
             }
+        }
+    }
+    
+    @EventHandler
+    public void onPlayerSneak(PlayerSneakEvent evt) {
+        if(evt.getPlayer().getEntityId() == closestPlayerId) {
+            Storage.self.sneak(evt.isSneaking());
+        }
+    }
+    
+    @EventHandler
+    public void onSwing(EntityAnimationEvent evt) {
+        if(evt.getEntity().getEntityId() == closestPlayerId && (evt.getAnimationId() == 0 || evt.getAnimationId() == 3)) {
+            Storage.self.swingArm(false);
         }
     }
 
