@@ -7,9 +7,11 @@ package zbottestplugin;
 
 import edu.kit.informatik.Node;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import zbottestplugin.HTTP.HTTPResponse;
 import zedly.zbot.entity.Player;
 import zedly.zbot.Location;
 import zedly.zbot.event.ChatEvent;
@@ -28,12 +30,15 @@ public class Watcher implements Listener {
 
     private final Pattern p = Pattern.compile("^<(.*?)> (.*)$");
     private final Pattern pmp = Pattern.compile("^\\[(.*?) -> me\\] (.*)$");
+    private final Pattern urlp = Pattern.compile("(https?:\\/\\/\\S+)");
     private final Pattern cp;
     private final Pattern welcomePattern = Pattern.compile("^Everybody welcome (.+) to the server!$");
     private final String rp;
 
     private final ConcurrentLinkedQueue<Location> trackLocations = new ConcurrentLinkedQueue<>();
     private Location lastLoc;
+    private boolean google = false;
+    
 
     public Watcher() {
         switch (Storage.self.getServerConnection().getUsername()) {
@@ -50,7 +55,9 @@ public class Watcher implements Listener {
                 cp = Pattern.compile("^zb (.+)");
                 break;
         }
-        if (Storage.self.getServerConnection().getIp().equals("85.131.153.100")) {
+        if (Storage.self.getServerConnection().getIp().equals("85.131.153.100")
+                || Storage.self.getServerConnection().getIp().equals("127.0.0.1")
+                || Storage.self.getServerConnection().getIp().equals("155.254.35.239")) {
             rp = "\\(.+\\)";
         } else {
             rp = "\\[.+\\] ";
@@ -101,6 +108,20 @@ public class Watcher implements Listener {
             if (TranslationService.hasTranslations(user)) {
                 Storage.translatorThread.performTranslation(user, message);
             }
+
+            if (!user.equals(Storage.self.getServerConnection().getUsername()) || google) {
+                m = urlp.matcher(evt.getMessage());
+                if (m.find()) {
+                    String url = m.group(1);
+                    new Thread(() -> {
+                        String title = getTitleForSite(url, 0);
+                        if (title != null) {
+                            Storage.self.sendChat(title);
+                        }
+                    }).start();
+                }
+                google = false;
+            }
         }
         m = pmp.matcher(evt.getMessage());
         if (m.find()) {
@@ -118,8 +139,7 @@ public class Watcher implements Listener {
     }
 
     @EventHandler
-    public void onPlayerSpawn(PlayerSpawnEvent evt
-    ) {
+    public void onPlayerSpawn(PlayerSpawnEvent evt) {
         Location l = evt.getEntity().getLocation();
         if (evt.getEntity() instanceof Player) {
             Player ep = (Player) evt.getEntity();
@@ -128,8 +148,7 @@ public class Watcher implements Listener {
     }
 
     @EventHandler
-    public void onSelfTeleport(SelfTeleportEvent evt
-    ) {
+    public void onSelfTeleport(SelfTeleportEvent evt) {
         System.out.println("Teleported to " + evt.getNewLocation());
         if (Storage.graph != null) {
             Node n = Storage.graph.getClosestNodeTo(Storage.self.getLocation());
@@ -142,8 +161,7 @@ public class Watcher implements Listener {
     }
 
     @EventHandler
-    public void onEntityMeta(EntityMetadataEvent evt
-    ) {
+    public void onEntityMeta(EntityMetadataEvent evt) {
         if (Storage.debugEntity == evt.getEntity().getEntityId()) {
             Map<Integer, EntityMeta> metaMap = evt.getMap();
             System.out.println("EntityMeta update for " + Storage.debugEntity + ":");
@@ -151,6 +169,35 @@ public class Watcher implements Listener {
                 System.out.println(i + ": " + metaMap.get(i));
             }
             System.out.println("");
+        }
+    }
+    
+    public void previewNextLink() {
+        google = true;
+    }
+
+    private String getTitleForSite(String urlString, int depth) {
+        if (depth > 5) {
+            return null;
+        }
+        try {
+            URL url = new URL(urlString);
+            HTTPResponse http = HTTP.get(url);
+            if (http.getHeaders().containsKey("Location")) {
+                return getTitleForSite(http.getHeaders().get("Location").get(0), depth + 1);
+            }
+            String html = new String(http.getContent());
+            if (html.equals("")) {
+                return null;
+            }
+            String title = StringUtil.extract(html, "<title", "/title>");
+            if (title == null) {
+                return null;
+            }
+            title = StringUtil.extract(title, ">", "<");
+            return title;
+        } catch (IOException ex) {
+            return null;
         }
     }
 }

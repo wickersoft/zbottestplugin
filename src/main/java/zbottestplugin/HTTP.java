@@ -11,97 +11,112 @@ import java.net.URLConnection;
 import java.util.List;
 import java.util.Map;
 
-public class HTTP
-{
-	public static HTTPResponse https(String url, String postData) throws IOException
-	{
-		URL                myurl = new URL(url);
-		HttpsURLConnection con   = (HttpsURLConnection) myurl.openConnection();
-		con.setConnectTimeout(30000);
-		con.setRequestMethod("POST");
-		con.setRequestProperty("Accept-Charset", "UTF-8");
-		con.setRequestProperty("Content-length", String.valueOf(postData.length()));
-		con.setRequestProperty("Content-Type", "application/json");
-		con.setDoOutput(true);
-		con.setDoInput(true);
-		DataOutputStream output = new DataOutputStream(con.getOutputStream());
-		output.writeBytes(postData);
-		output.close();
-		return receiveContent(con);
-	}
+public class HTTP {
 
-	private static HTTPResponse receiveContent(URLConnection con) throws IOException
-	{
-		Map<String, List<String>> headers = con.getHeaderFields();
-		ByteArrayOutputStream     bos     = new ByteArrayOutputStream();
-		try
-		{
-			DataInputStream input = new DataInputStream(con.getInputStream());
-			for (int c = input.read(); c != -1; c = input.read())
-			{
-				bos.write(c);
-			}
-			input.close();
-		}
-		catch (IOException ignored) {}
-		byte[] content = bos.toByteArray();
-		return new HTTPResponse(headers, content);
-	}
+    /**
+     * Perform a HTTP GET request for the given URL.
+     *
+     * @param url the URL of the resource to retrieve
+     * @return a structure containing response headers and payload
+     * @throws IOException if a network error occurs
+     */
+    public static HTTPResponse get(URL url) throws IOException {
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        con.setConnectTimeout(30000);
+        con.setRequestMethod("GET");
+        con.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.64 Safari/537.31");
+        con.setDoInput(true);
+        Map<String, List<String>> headers = con.getHeaderFields();
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try {
+            DataInputStream input = new DataInputStream(con.getInputStream());
+            for (int c = input.read(); c != -1; c = input.read()) {
+                bos.write(c);
+            }
+            input.close();
+        } catch (IOException ignored) {
+        }
+        byte[] content = bos.toByteArray();
+        return new HTTPResponse(headers, content);
+    }
 
-	public static HTTPResponse http(String url) throws IOException
-	{
-		URL               myurl = new URL(url);
-		HttpURLConnection con   = (HttpURLConnection) myurl.openConnection();
-		con.setConnectTimeout(30000);
-		con.setRequestMethod("GET");
-		con.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.64 Safari/537.31");
-		con.setDoInput(true);
-		return receiveContent(con);
-	}
+    public static HTTPResponse https(String url, String postData) throws IOException {
+        URL myurl = new URL(url);
+        HttpsURLConnection con = (HttpsURLConnection) myurl.openConnection();
+        con.setConnectTimeout(30000);
+        con.setRequestMethod("POST");
+        con.setRequestProperty("Accept-Charset", "UTF-8");
+        con.setRequestProperty("Content-length", String.valueOf(postData.length()));
+        con.setRequestProperty("Content-Type", "application/json");
+        con.setDoOutput(true);
+        con.setDoInput(true);
+        DataOutputStream output = new DataOutputStream(con.getOutputStream());
+        output.writeBytes(postData);
+        output.close();
+        return receiveContent(con);
+    }
 
-	public static HTTPResponse https(String url) throws IOException
-	{
-		URL                myurl = new URL(url);
-		HttpsURLConnection con   = (HttpsURLConnection) myurl.openConnection();
-		con.setConnectTimeout(30000);
-		con.setRequestMethod("GET");
-		con.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.64 Safari/537.31");
-		con.setDoInput(true);
-		return receiveContent(con);
-	}
+    private static HTTPResponse receiveContent(URLConnection con) throws IOException {
+        Map<String, List<String>> headers = con.getHeaderFields();
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try {
+            DataInputStream input = new DataInputStream(con.getInputStream());
+            for (int c = input.read(); c != -1; c = input.read()) {
+                bos.write(c);
+            }
+            input.close();
+        } catch (IOException ignored) {
+        }
+        byte[] content = bos.toByteArray();
+        return new HTTPResponse(headers, content);
+    }
 
-	public static class HTTPResponse
-	{
+    public static HTTPResponse http(String url) throws IOException {
+        URL myurl = new URL(url);
+        HttpURLConnection con = (HttpURLConnection) myurl.openConnection();
+        con.setConnectTimeout(30000);
+        con.setRequestMethod("GET");
+        con.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.64 Safari/537.31");
+        con.setDoInput(true);
+        return receiveContent(con);
+    }
 
-		private final Map<String, List<String>> headers;
-		private final byte[]                    content;
+    public static HTTPResponse https(String url) throws IOException {
+        URL myurl = new URL(url);
+        HttpsURLConnection con = (HttpsURLConnection) myurl.openConnection();
+        con.setConnectTimeout(30000);
+        con.setRequestMethod("GET");
+        con.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.64 Safari/537.31");
+        con.setDoInput(true);
+        return receiveContent(con);
+    }
 
-		public HTTPResponse(Map<String, List<String>> headers, byte[] content)
-		{
-			this.headers = headers;
-			this.content = content;
-		}
+    public static class HTTPResponse {
 
-		public String getCookieString()
-		{
-			String       httpCookies = "";
-			List<String> cookies     = headers.get("Set-Cookie");
-			for (int i = 0; i < cookies.size() - 1; i++)
-			{
-				httpCookies += cookies.get(i).substring(0, cookies.get(i).indexOf(";")) + "; ";
-			}
-			httpCookies += cookies.get(cookies.size() - 1).substring(0, cookies.get(cookies.size() - 1).indexOf(";"));
-			return httpCookies;
-		}
+        private final Map<String, List<String>> headers;
+        private final byte[] content;
 
-		public Map<String, List<String>> getHeaders()
-		{
-			return headers;
-		}
+        public HTTPResponse(Map<String, List<String>> headers, byte[] content) {
+            this.headers = headers;
+            this.content = content;
+        }
 
-		public byte[] getContent()
-		{
-			return content;
-		}
-	}
+        public String getCookieString() {
+            String httpCookies = "";
+            List<String> cookies = headers.get("Set-Cookie");
+            for (int i = 0; i < cookies.size() - 1; i++) {
+                httpCookies += cookies.get(i).substring(0, cookies.get(i).indexOf(";")) + "; ";
+            }
+            httpCookies += cookies.get(cookies.size() - 1).substring(0, cookies.get(cookies.size() - 1).indexOf(";"));
+            return httpCookies;
+        }
+
+        public Map<String, List<String>> getHeaders() {
+            return headers;
+        }
+
+        public byte[] getContent() {
+            return content;
+        }
+    }
 }

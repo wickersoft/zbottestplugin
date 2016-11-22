@@ -33,6 +33,8 @@ public class ZBotTestPlugin extends ZBotPlugin {
         loadResources();
         Storage.translatorThread.start();
         watcher = new Watcher();
+        
+        self.registerEvents(Storage.follower);
         self.registerEvents(Storage.recorder);
         self.registerEvents(watcher);
     }
@@ -42,6 +44,7 @@ public class ZBotTestPlugin extends ZBotPlugin {
         System.out.println("Joined! My EID: " + Storage.self.getEntityId());
         Storage.self.scheduleSyncRepeatingTask(this, Storage.synch, 50, 50);
         Storage.self.scheduleSyncRepeatingTask(this, Storage.roamer, 150, 150);
+        Storage.self.scheduleSyncRepeatingTask(this, Storage.follower, 10000, 10000);
         //Storage.self.scheduleSyncRepeatingTask(this, Storage.defender, 500, 500);
     }
     
