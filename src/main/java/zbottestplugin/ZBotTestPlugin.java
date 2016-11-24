@@ -20,8 +20,7 @@ import zedly.zbot.plugin.ZBotPlugin;
  * @author Dennis
  */
 public class ZBotTestPlugin extends ZBotPlugin {
-
-    private Watcher watcher;
+    
     private static final ArrayList<String> resourceFileNames = new ArrayList<>();
 
     
@@ -32,11 +31,11 @@ public class ZBotTestPlugin extends ZBotPlugin {
         setupPluginFolder();
         loadResources();
         Storage.translatorThread.start();
-        watcher = new Watcher();
+        Storage.watcher = new Watcher();
         
         self.registerEvents(Storage.follower);
         self.registerEvents(Storage.recorder);
-        self.registerEvents(watcher);
+        self.registerEvents(Storage.watcher);
     }
     
     @Override
@@ -59,7 +58,7 @@ public class ZBotTestPlugin extends ZBotPlugin {
 
     @Override
     public void onDisable() {
-        Storage.self.unregisterEvents(watcher);
+        Storage.self.unregisterEvents(Storage.watcher);
         Storage.translatorThread.interrupt();
     }
 

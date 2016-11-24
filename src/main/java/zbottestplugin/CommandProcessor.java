@@ -65,7 +65,6 @@ public class CommandProcessor {
                     String[] links = StringUtil.extractAll(html, "<h3 class=\"r\"><a href=\"", "\"");
                     for (String s : links) {
                         System.out.println(s);
-
                         //TODO: tinyurl
                         respond(respondTo, s);
                         return;
@@ -385,6 +384,9 @@ public class CommandProcessor {
                     break;
                 case "unsneak":
                     Storage.self.sneak(false);
+                    break;
+                case "swing":
+                    Storage.self.swingArm(false);
                     break;
                 case "click":
                     if (args.length == 4) {

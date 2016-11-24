@@ -18,6 +18,11 @@ import zedly.zbot.self.Self;
  * @author Dennis
  */
 public class Storage {
+
+    public static final HashSet<String> languageCodes = new HashSet<>();
+    public static final HashMap<String, String> languageAliases = new HashMap<>();
+    public static final TaskRoam roamer = new TaskRoam();
+    
     public static Self self;
     public static BufferedOutputStream os;
     public static ZBotTestPlugin plugin;
@@ -26,16 +31,14 @@ public class Storage {
     public static Random rnd = new Random();
     public static Synchronizer synch = new Synchronizer();
     public static ThreadTranslator translatorThread = new ThreadTranslator();
-    public static final HashSet<String> languageCodes = new HashSet<>();
-    public static final HashMap<String, String> languageAliases = new HashMap<>();
-    public static final TaskRoam roamer = new TaskRoam();
     public static Graph graph;
     public static TaskDefender defender = new TaskDefender();
-    public static int debugEntity = 0;
     public static TaskFish fish;
     public static TaskHeadFollow follower = new TaskHeadFollow();
-    public static int zombieTaskId = -1;
+    public static Watcher watcher;
     
+    public static int zombieTaskId = -1;
+    public static int debugEntity = 0;
     
     static {
         languageCodes.add("de");
@@ -47,7 +50,7 @@ public class Storage {
         languageCodes.add("es");
         languageCodes.add("no");
         languageCodes.add("da");
-        
+
         languageAliases.put("german", "de");
         languageAliases.put("english", "en");
         languageAliases.put("italian", "it");
