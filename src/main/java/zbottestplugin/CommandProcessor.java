@@ -66,6 +66,7 @@ public class CommandProcessor {
                     for (String s : links) {
                         System.out.println(s);
                         //TODO: tinyurl
+                        Storage.watcher.previewNextLink();
                         respond(respondTo, s);
                         return;
                     }
