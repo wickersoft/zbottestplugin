@@ -28,9 +28,9 @@ public class InventoryUtil {
         }
         for (int i = 9; i <= 35; i++) {
             if (Storage.self.getInventory().getSlot(i).getType() == mat) {
-                Storage.self.getInventory().clickSlot(i, 0, 0);
-                Storage.self.getInventory().clickSlot(nextSlot + 36, 0, 0);
-                Storage.self.getInventory().clickSlot(i, 0, 0);
+                Storage.self.getInventory().click(i, 0, 0);
+                Storage.self.getInventory().click(nextSlot + 36, 0, 0);
+                Storage.self.getInventory().click(i, 0, 0);
                 Storage.self.selectSlot(nextSlot);
                 nextSlot = (nextSlot + 1) % 9;
                 return true;
@@ -54,9 +54,9 @@ public class InventoryUtil {
         for (int i = 9; i <= 35; i++) {
             if (Storage.self.getInventory().getSlot(i).getType() == mat
                     && Storage.self.getInventory().getSlot(i).getDamageValue() == damage) {
-                Storage.self.getInventory().clickSlot(i, 0, 0);
-                Storage.self.getInventory().clickSlot(nextSlot + 36, 0, 0);
-                Storage.self.getInventory().clickSlot(i, 0, 0);
+                Storage.self.getInventory().click(i, 0, 0);
+                Storage.self.getInventory().click(nextSlot + 36, 0, 0);
+                Storage.self.getInventory().click(i, 0, 0);
                 Storage.self.selectSlot(nextSlot);
                 nextSlot = (nextSlot + 1) % 9;
                 return true;

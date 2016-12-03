@@ -28,6 +28,15 @@ public class TaskHeadFollow implements Listener, Runnable {
     private final int trackingDistance = 15;
     private int closestPlayerId = -1;
     private double closestPlayerDistance = Double.MAX_VALUE;
+    private final boolean warpSpam;
+    
+    public TaskHeadFollow() {
+        this(false);
+    }
+    
+    public TaskHeadFollow(boolean warpSpam) {
+        this.warpSpam = warpSpam;
+    }
     
     private String[] messages = {
         "The warps on the right are brand new and unexplored!",
@@ -42,7 +51,7 @@ public class TaskHeadFollow implements Listener, Runnable {
             closestPlayerDistance = Double.MAX_VALUE;
             lookAt(idleLocation);
             Storage.self.sneak(false);
-        } else {
+        } else if (warpSpam) {
             Player p = (Player) e;
             String playerName = Storage.self.getEnvironment().getPlayerNameByUUID(p.getUUID());
             Storage.self.sendChat("/msg " + playerName + " " + messages[rnd.nextInt(messages.length)]);

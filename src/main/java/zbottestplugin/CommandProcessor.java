@@ -318,12 +318,12 @@ public class CommandProcessor {
                     break;
                 case "icl":
                     if (args.length == 2) {
-                        Storage.self.getInventory().clickSlot(Integer.parseInt(args[1]), 0, 0);
+                        Storage.self.getInventory().click(Integer.parseInt(args[1]), 0, 0);
                     }
                     break;
                 case "icr":
                     if (args.length == 2) {
-                        Storage.self.getInventory().clickSlot(Integer.parseInt(args[1]), 0, 1);
+                        Storage.self.getInventory().click(Integer.parseInt(args[1]), 0, 1);
                     }
                     break;
                 case "pixel":

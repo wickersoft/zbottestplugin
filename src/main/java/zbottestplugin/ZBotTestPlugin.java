@@ -43,7 +43,8 @@ public class ZBotTestPlugin extends ZBotPlugin {
         System.out.println("Joined! My EID: " + Storage.self.getEntityId());
         Storage.self.scheduleSyncRepeatingTask(this, Storage.synch, 50, 50);
         Storage.self.scheduleSyncRepeatingTask(this, Storage.roamer, 150, 150);
-        Storage.self.scheduleSyncRepeatingTask(this, Storage.follower, 10000, 10000);
+        Storage.self.scheduleSyncRepeatingTask(this, Storage.follower, 15000, 15000);
+        Storage.self.scheduleSyncRepeatingTask(this, Storage.spammer, 600000, 600000);
         //Storage.self.scheduleSyncRepeatingTask(this, Storage.defender, 500, 500);
     }
     

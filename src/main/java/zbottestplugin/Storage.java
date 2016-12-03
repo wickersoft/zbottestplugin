@@ -35,6 +35,7 @@ public class Storage {
     public static TaskDefender defender = new TaskDefender();
     public static TaskFish fish;
     public static TaskHeadFollow follower = new TaskHeadFollow();
+    public static TaskSpamBroadcast spammer = new TaskSpamBroadcast();
     public static Watcher watcher;
     
     public static int zombieTaskId = -1;
