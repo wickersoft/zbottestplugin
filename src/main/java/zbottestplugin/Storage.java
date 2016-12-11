@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Random;
+import zedly.zbot.YamlConfiguration;
 import zedly.zbot.self.Self;
 
 /**
@@ -34,9 +35,10 @@ public class Storage {
     public static Graph graph;
     public static TaskDefender defender = new TaskDefender();
     public static TaskFish fish;
-    public static TaskHeadFollow follower = new TaskHeadFollow();
-    public static TaskSpamBroadcast spammer = new TaskSpamBroadcast();
+    public static TaskHeadFollow follower;
+    public static TaskSpamBroadcast spammer;
     public static Watcher watcher;
+    public static YamlConfiguration config;
     
     public static int zombieTaskId = -1;
     public static int debugEntity = 0;

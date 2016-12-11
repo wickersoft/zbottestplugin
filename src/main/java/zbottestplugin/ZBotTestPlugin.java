@@ -11,7 +11,11 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Enumeration;
+import zedly.zbot.YamlConfiguration;
 import zedly.zbot.self.Self;
 import zedly.zbot.plugin.ZBotPlugin;
 
@@ -20,39 +24,57 @@ import zedly.zbot.plugin.ZBotPlugin;
  * @author Dennis
  */
 public class ZBotTestPlugin extends ZBotPlugin {
-    
-    private static final ArrayList<String> resourceFileNames = new ArrayList<>();
 
-    
+    private static final ArrayList<String> resourceFileNames = new ArrayList<>();
+    public static YamlConfiguration config;
+
     @Override
     public void onEnable(Self self) {
-        Storage.self = self;
+        config = getConfig();
         Storage.plugin = this;
+        Storage.self = self;
+        Storage.spammer = new TaskSpamBroadcast();
+        Storage.follower = new TaskHeadFollow(config.getBoolean("follow.spam", false));
+
         setupPluginFolder();
+        saveDefaultConfig(false);
         loadResources();
         Storage.translatorThread.start();
         Storage.watcher = new Watcher();
-        
-        self.registerEvents(Storage.follower);
+
+        if (config.getBoolean("follow.enable", false)) {
+            System.out.println("Enabling Follow watcher");
+            self.registerEvents(Storage.follower);
+        }
         self.registerEvents(Storage.recorder);
         self.registerEvents(Storage.watcher);
     }
-    
+
     @Override
     public void onJoin() {
         System.out.println("Joined! My EID: " + Storage.self.getEntityId());
         Storage.self.scheduleSyncRepeatingTask(this, Storage.synch, 50, 50);
-        Storage.self.scheduleSyncRepeatingTask(this, Storage.roamer, 150, 150);
         Storage.self.scheduleSyncRepeatingTask(this, Storage.follower, 15000, 15000);
-        Storage.self.scheduleSyncRepeatingTask(this, Storage.spammer, 600000, 600000);
-        //Storage.self.scheduleSyncRepeatingTask(this, Storage.defender, 500, 500);
+        if (config.getBoolean("roam", false)) {
+            System.out.println("Enabling Roamer");
+            Storage.self.scheduleSyncRepeatingTask(this, Storage.roamer, 150, 150);
+        }
+
+        if (config.getBoolean("broadcast.enable", false)) {
+            System.out.println("Enabling Broadcaster");
+            Storage.self.scheduleSyncRepeatingTask(this, Storage.spammer, 600000, 600000);
+        }
+        if (config.getBoolean("defend", false)) {
+            System.out.println("Enabling Defender");
+            Storage.self.scheduleSyncRepeatingTask(this, Storage.defender, 500, 500);
+        }
     }
-    
+
     @Override
     public void onQuit() {
         System.out.println("Quit!");
         StackTraceElement[] trace = Thread.getAllStackTraces().get(Thread.currentThread());
-        for(StackTraceElement e : trace) {
+        for (StackTraceElement e : trace) {
             System.out.println(e.toString());
         }
     }
@@ -65,7 +87,7 @@ public class ZBotTestPlugin extends ZBotPlugin {
 
     private void loadResources() {
         try {
-            File file = new File("plugins/ZBotTestPlugin/goodbye.txt");
+            File file = new File(getDataFolder(), "goodbye.txt");
             byte[] bin = new byte[(int) file.length()];
             FileInputStream fis = new FileInputStream(file);
             fis.read(bin);
@@ -80,15 +102,11 @@ public class ZBotTestPlugin extends ZBotPlugin {
     }
 
     private void setupPluginFolder() {
-        File file = new File("plugins/ZBotTestPlugin");
-        if (!file.exists()) {
-            file.mkdir();
-        }
         for (String filename : resourceFileNames) {
             try {
-                File resourceFile = new File("plugins/ZBotTestPlugin/" + filename);
+                File resourceFile = new File(getDataFolder(), filename);
                 if (!resourceFile.exists()) {
-                    InputStream is = this.getClass().getResourceAsStream("resource/" + filename);
+                    InputStream is = this.getClass().getResourceAsStream("/" + filename);
                     FileOutputStream fos = new FileOutputStream(resourceFile);
                     do {
                         byte[] bytes = new byte[is.available()];

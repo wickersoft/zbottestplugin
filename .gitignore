@@ -1,7 +1,4 @@
 logs
-plugins
 target
-config.yml
-.git
 nbactions.xml
 hs_err_pid*

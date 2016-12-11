@@ -5,6 +5,7 @@
  */
 package zbottestplugin;
 
+import java.util.List;
 import java.util.Random;
 import zedly.zbot.EntityType;
 import zedly.zbot.Location;
@@ -30,19 +31,11 @@ public class TaskHeadFollow implements Listener, Runnable {
     private double closestPlayerDistance = Double.MAX_VALUE;
     private final boolean warpSpam;
     
-    public TaskHeadFollow() {
-        this(false);
-    }
-    
     public TaskHeadFollow(boolean warpSpam) {
         this.warpSpam = warpSpam;
     }
     
-    private String[] messages = {
-        "The warps on the right are brand new and unexplored!",
-        "If you're looking for a town, take a look at the warps on the left!",
-        "Tell Derp to send me the Doctor's lines already!",
-        "Click on one of the pictures to teleport to its destination!",};
+    private final List<String> messages = Storage.plugin.getConfig().getList("follow.msgs", String.class);
 
     public void run() {
         Entity e = Storage.self.getEnvironment().getEntityById(closestPlayerId);
@@ -54,7 +47,7 @@ public class TaskHeadFollow implements Listener, Runnable {
         } else if (warpSpam) {
             Player p = (Player) e;
             String playerName = Storage.self.getEnvironment().getPlayerNameByUUID(p.getUUID());
-            Storage.self.sendChat("/msg " + playerName + " " + messages[rnd.nextInt(messages.length)]);
+            Storage.self.sendChat("/msg " + playerName + " " + messages.get(rnd.nextInt(messages.size())));
         }
     }
 
