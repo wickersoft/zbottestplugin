@@ -27,7 +27,7 @@ public class BlockingAI implements Runnable {
         }
     }
 
-    public void moveTo(Location target) throws InterruptedException {
+    public boolean moveTo(Location target) throws InterruptedException {
         List<Location> nodes;
         Location oldLoc = Storage.self.getLocation();
         if (oldLoc.distanceTo(target) <= 1) {
@@ -35,9 +35,13 @@ public class BlockingAI implements Runnable {
             nodes.add(target);
         } else {
             GeometricPath path = AStar.getPath(target);
+            if (path == null) {
+                return false;
+            }
             nodes = path.getLocations();
         }
         followPath(nodes);
+        return true;
     }
 
     public void followPath(GeometricPath path) throws InterruptedException {
@@ -84,7 +88,7 @@ public class BlockingAI implements Runnable {
     public void breakBlock(Location loc) throws InterruptedException {
         breakBlock(loc, 1000);
     }
-    
+
     public void clickBlock(Location loc) throws InterruptedException {
         Storage.self.clickBlock(loc);
         tick();
@@ -95,9 +99,9 @@ public class BlockingAI implements Runnable {
             lock.wait();
         }
     }
-    
+
     public void tick(int ticks) throws InterruptedException {
-        for(int i = 0; i < ticks; i++) {
+        for (int i = 0; i < ticks; i++) {
             tick();
         }
     }

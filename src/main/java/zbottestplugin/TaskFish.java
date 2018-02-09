@@ -5,7 +5,7 @@
  */
 package zbottestplugin;
 
-import zedly.zbot.block.Material;
+import org.bukkit.Material;
 
 /**
  *

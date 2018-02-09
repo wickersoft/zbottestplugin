@@ -37,10 +37,11 @@ public class Watcher implements Listener {
 
     private final ConcurrentLinkedQueue<Location> trackLocations = new ConcurrentLinkedQueue<>();
     private Location lastLoc;
-    private boolean google = false;
-    
+    private boolean resolveOwnLink = false;
+    private boolean resolveLinks = false;
 
     public Watcher() {
+        resolveLinks = Storage.plugin.getConfig().getBoolean("resolveLinks", false);
         switch (Storage.self.getServerConnection().getUsername()) {
             case "SayakaMiki_":
                 cp = Pattern.compile("^sm (.+)");
@@ -109,7 +110,7 @@ public class Watcher implements Listener {
                 Storage.translatorThread.performTranslation(user, message);
             }
 
-            if (!user.equals(Storage.self.getServerConnection().getUsername()) || google) {
+            if (resolveLinks && (!user.equals(Storage.self.getServerConnection().getUsername()) || resolveOwnLink)) {
                 m = urlp.matcher(evt.getMessage());
                 if (m.find()) {
                     String url = m.group(1);
@@ -120,7 +121,7 @@ public class Watcher implements Listener {
                         }
                     }).start();
                 }
-                google = false;
+                resolveOwnLink = false;
             }
         }
         m = pmp.matcher(evt.getMessage());
@@ -171,9 +172,9 @@ public class Watcher implements Listener {
             System.out.println("");
         }
     }
-    
+
     public void previewNextLink() {
-        google = true;
+        resolveOwnLink = true;
     }
 
     private String getTitleForSite(String urlString, int depth) {
@@ -195,6 +196,8 @@ public class Watcher implements Listener {
                 return null;
             }
             title = StringUtil.extract(title, ">", "<");
+            title = title.replaceAll("&", "&&");
+            title = title.replaceAll("/", "&f/");
             return title;
         } catch (IOException ex) {
             return null;

@@ -11,7 +11,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import javax.imageio.ImageIO;
 import zedly.zbot.Location;
-import zedly.zbot.block.Material;
+import org.bukkit.Material;
+import zedly.zbot.environment.BlockFace;
 
 /**
  *
@@ -45,7 +46,7 @@ public class TaskPixel extends Thread {
                 y = getTransformedVerticalOffset(iteration);
                 int rgb = img.getRGB(x, y);
                 selectPixelBlock(rgb);
-                Storage.self.placeBlock(originX + jx * x, originY - 2 + height - y, originZ + jz * x);
+                Storage.self.placeBlock(originX + jx * x, originY - 2 + height - y, originZ + jz * x, BlockFace.UP);
                 iteration++;
             }
             if (iteration == width * height) {
@@ -179,7 +180,6 @@ public class TaskPixel extends Thread {
         itemMap.put(0xBE4BC8, new ItemStack(Material.WOOL, (short) 2)); // Magenta
         itemMap.put(0xEA7F36, new ItemStack(Material.WOOL, (short) 1)); // Orange
         itemMap.put(0xDBDBDB, new ItemStack(Material.WOOL, (short) 0)); // White
-
     }
 
 }

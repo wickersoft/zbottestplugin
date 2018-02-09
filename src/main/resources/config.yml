@@ -14,8 +14,11 @@ follow:
   
 broadcast:
   enable: true
+  delay: 900
   msgs:
-  - "Give back to the community by donating items for the &2holiday drop party on Dec 26&a! Drop them off at the Christmas tree."
-  - "Don't forget to give Santa your &2wish list&a! Put your list in the hopper under the spawn Christmas tree"
-  - "Wanna participate in the &2winter build contest&a? Leave an ag with your name to get a plot! Contest ends January 1st"
-  - "If you like our server, &bvote for us! &ahttp://tinyurl.com/vote-for-nyan"
+  - "Got griefed? Report it to the admins using &6/ag&a!"
+  - "Help keep our world tidy! Report floating trees, raided deserts and abandoned buildings using &6/ls&a!"
+  - "Keep the world tidy! Report floating trees, raided deserts and abandoned buildings using &6/ls&a!"
+  - "Learn more about our server! http://naanpig.zohosites.com"
+  - "Meet up on our Discord channel! https://discord.gg/4Qm3wrZ"
+  - "If you like our server, &bvote for us! &ehttp://tinyurl.com/vote-for-nyan"

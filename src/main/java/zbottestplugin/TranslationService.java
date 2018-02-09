@@ -5,9 +5,17 @@
  */
 package zbottestplugin;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import zbottestplugin.HTTP.HTTPResponse;
 
 /**
  *
@@ -62,7 +70,7 @@ public class TranslationService {
 
     public static synchronized String translate(String message, String langpair) {
         try {
-            String trans = new String(HTTP.http("http://mymemory.translated.net/api/get?langpair=" + langpair + "&de=dennis.wickersheim%40gmail.com&q=" + URLEncoder.encode(message, "UTF-8")).getContent());
+            String trans = new String(HTTP.httpFast("http://mymemory.translated.net/api/get?langpair=" + langpair + "&de=dennis.wickersheim%40gmail.com&q=" + URLEncoder.encode(message, "UTF-8"), 3000).getContent());
             String translated = SimpleJson.parse(trans);
             return translated;
         } catch (IOException ex) {
@@ -70,5 +78,5 @@ public class TranslationService {
         }
         return "Unable to translate!";
     }
-
+    
 }

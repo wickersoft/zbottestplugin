@@ -6,28 +6,29 @@
 package zbottestplugin;
 
 import edu.kit.informatik.AStar;
-import edu.kit.informatik.Dijkstra;
 import edu.kit.informatik.GeometricPath;
-import edu.kit.informatik.Graph;
 import edu.kit.informatik.Node;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import zbottestplugin.HTTP.HTTPResponse;
 import zedly.zbot.ClientSettings;
+import zedly.zbot.EntityType;
 import zedly.zbot.entity.Entity;
 import zedly.zbot.entity.Player;
 import zedly.zbot.Location;
 import zedly.zbot.inventory.ItemStack;
-import zedly.zbot.block.Block;
-import zedly.zbot.block.Material;
+import zedly.zbot.environment.Block;
+import org.bukkit.Material;
 import zedly.zbot.entity.FallingBlock;
 import zedly.zbot.entity.Item;
+import zedly.zbot.entity.LivingEntity;
 import zedly.zbot.entity.Sheep;
 import zedly.zbot.entity.Tameable;
 import zedly.zbot.entity.Unknown;
-import zedly.zbot.util.Vector;
+import zedly.zbot.environment.BlockFace;
 
 /**
  *
@@ -55,10 +56,10 @@ public class CommandProcessor {
                 respond(respondTo, "&aNyanCat Server on Facebook: &ehttps://www.facebook.com/groups/406113456101737/");
                 break;
             case "vote":
-                respond(respondTo, "&aIf you like our server, &bvore for us! &ahttp://tinyurl.com/vote-for-nyan");
+                respond(respondTo, "&aVote for us: &ehttp://tinyurl.com/vote-for-nyan");
                 break;
             case "discord":
-                respond(respondTo, "&aOfficial Discord Server: &ahttps://discord.gg/4Qm3wrZ");
+                respond(respondTo, "&aOfficial Discord Server: &ehttps://discord.gg/4Qm3wrZ");
                 break;
             case "google":
                 if (args.length == 1) {
@@ -84,10 +85,6 @@ public class CommandProcessor {
                     ex.printStackTrace();
                     return;
                 }
-            case "wheat":
-                ThreadWheatFast twf = new ThreadWheatFast();
-                twf.start();
-                break;
             case "trans":
             case "translate":
                 if (args.length < 2) {
@@ -130,7 +127,7 @@ public class CommandProcessor {
                 respond(respondTo, "Translating " + args[1] + " from " + sourceLanguage + " to " + targetLanguage + "!");
                 break;
         }
-        if (!player.equals("brainiac94") && !player.equals("Veresen") && !player.equals("SayakaMiki_") && !player.equals("beddong")) {
+        if (!player.equals("brainiac94") && !player.equals("Veresen") && !player.equals("beddong")) {
             return;
         }
         switch (args[0]) {
@@ -159,13 +156,13 @@ public class CommandProcessor {
 
                 if (ent instanceof Sheep) {
                     Sheep s = (Sheep) ent;
-                    Storage.self.sendChat("That is " + (s.isSheared() ? "sheared" : "") + s.getColor() + " SHEEP" + ent.getEntityId());
+                    Storage.self.sendChat("That is " + (s.isSheared() ? "sheared" : "") + s.getColor() + " SHEEP " + ent.getEntityId());
                 } else if (ent instanceof Unknown) {
                     Storage.self.sendChat("That is unidentified entity " + +ent.getEntityId() + " (Type " + ((Unknown) ent).getEntityTypeId() + ")");
                 } else if (ent instanceof Item) {
                     Item item = (Item) ent;
                     ItemStack is = item.getItemStack();
-                    Storage.self.sendChat("That is ITEM " + ent.getEntityId() + " consisting of " + is.getAmount() + "x" + is.getType() + ":" + is.getDamageValue());
+                    Storage.self.sendChat("That is ITEM " + ent.getEntityId() + " consisting of " + is.getAmount() + "x" + is.getType() + ":" + is.getData());
                 } else if (ent instanceof Player) {
                     Storage.self.sendChat("That is PLAYER " + ent.getEntityId() + ", " + ((Player) ent).getName());
                 } else if (ent instanceof FallingBlock) {
@@ -196,10 +193,15 @@ public class CommandProcessor {
                     ent = Storage.self.getEnvironment().getEntityById(Storage.recorder.getEntityId());
                     block = Storage.self.getEnvironment().getBlockAt(ent.getLocation());
                 }
-                if (block == null) {
-                    respond(respondTo, "This block is not loaded :(");
-                } else {
-                    respond(respondTo, "That block is " + block.getTypeId() + ":" + block.getData());
+                respond(respondTo, block.toString());
+                break;
+            case "rblock":
+                if (args.length >= 4) {
+                    int x = Integer.parseInt(args[1]);
+                    int y = Integer.parseInt(args[2]);
+                    int z = Integer.parseInt(args[3]);
+                    block = Storage.self.getEnvironment().getBlockAt(Storage.self.getLocation()).getRelative(x, y, z);
+                    respond(respondTo, block.toString());
                 }
                 break;
             case "debug":
@@ -272,7 +274,6 @@ public class CommandProcessor {
                 sb.append(args[args.length - 1]);
                 onCommand(args[1], sb.toString(), false);
                 break;
-
             case "select":
                 if (args.length == 2) {
                     int slot = Integer.parseInt(args[1]);
@@ -281,11 +282,17 @@ public class CommandProcessor {
                 break;
             case "slot":
                 if (args.length == 1) {
+                    Class clazz = Storage.self.getInventory().getClass();
+                    System.out.println(clazz);
                     ItemStack is = Storage.self.getInventory().getItemInHand();
-                    respond(respondTo, is.getAmount() + "x " + is.getTypeId() + ":" + is.getDamageValue());
+                    respond(respondTo, is.getAmount() + "x " + is.getTypeId() + ":" + is.getData());
                 } else if (args.length == 2) {
                     ItemStack is = Storage.self.getInventory().getSlot(Integer.parseInt(args[1]));
-                    respond(respondTo, is.getAmount() + "x " + is.getTypeId() + ":" + is.getDamageValue());
+                    if (is == null) {
+                        respond(respondTo, "That slot is empty");
+                    } else {
+                        respond(respondTo, is.getAmount() + "x " + is.getTypeId() + ":" + is.getData());
+                    }
                 }
                 break;
             case "break":
@@ -304,18 +311,25 @@ public class CommandProcessor {
                 }
                 break;
             case "place":
-                if (args.length == 4) {
-                    int x = Integer.parseInt(args[1]);
-                    int y = Integer.parseInt(args[2]);
-                    int z = Integer.parseInt(args[3]);
-                    Storage.self.placeBlock(x, y, z);
-                } else if (args.length == 5) {
-                    int x = Integer.parseInt(args[1]);
-                    int y = Integer.parseInt(args[2]);
-                    int z = Integer.parseInt(args[3]);
-                    int type = Integer.parseInt(args[4]);
-                    InventoryUtil.findAndSelect(Material.fromTypeId(type));
-                    Storage.self.placeBlock(x, y, z);
+                switch (args.length) {
+                    case 5: {
+                        int x = Integer.parseInt(args[1]);
+                        int y = Integer.parseInt(args[2]);
+                        int z = Integer.parseInt(args[3]);
+                        Storage.self.placeBlock(x, y, z, BlockFace.valueOf(args[4]));
+                        break;
+                    }
+                    case 6: {
+                        int x = Integer.parseInt(args[1]);
+                        int y = Integer.parseInt(args[2]);
+                        int z = Integer.parseInt(args[3]);
+                        int type = Integer.parseInt(args[4]);
+                        InventoryUtil.findAndSelect(Material.getMaterial(type));
+                        Storage.self.placeBlock(x, y, z, BlockFace.valueOf(args[5]));
+                        break;
+                    }
+                    default:
+                        break;
                 }
                 break;
             case "abilities":
@@ -409,7 +423,100 @@ public class CommandProcessor {
                     Storage.self.clickBlock(x, y, z);
                 }
                 break;
-            case "farm":
+            case "interact":
+                Entity target = null;
+                if (args.length == 2) {
+                    int eid = Integer.parseInt(args[2]);
+                    target = Storage.self.getEnvironment().getEntityById(eid);
+                    if (target == null) {
+                        respond(respondTo, "Can't see that entity");
+                    }
+                } else if (args.length == 1) {
+                    double d = Double.MAX_VALUE;
+                    double c;
+                    Collection<Entity> ents = Storage.self.getEnvironment().getEntities();
+                    for (Entity e : ents) {
+                        c = e.getLocation().distanceTo(Storage.self.getLocation());
+                        if (c < d) {
+                            d = c;
+                            target = e;
+                        }
+                    }
+                }
+                if (target != null) {
+                    System.out.println("Interacting with " + target.getType() + " at " + target.getLocation());
+                    Storage.self.interactWithEntity(target, false);
+                }
+                break;
+            case "attack":
+                target = null;
+                Collection<Entity> ents = Storage.self.getEnvironment().getEntities();
+                if (args.length == 2) {
+                    int eid = Integer.parseInt(args[2]);
+                    target = Storage.self.getEnvironment().getEntityById(eid);
+                    if (target == null) {
+                        respond(respondTo, "Can't see that entity");
+                    }
+                } else if (args.length == 1) {
+                    double d = Double.MAX_VALUE;
+                    double c;
+
+                    for (Entity e : ents) {
+                        if (!(e instanceof LivingEntity)) {
+                            continue;
+                        }
+                        c = e.getLocation().distanceTo(Storage.self.getLocation());
+                        if (c < d) {
+                            d = c;
+                            target = e;
+                        }
+
+                    }
+                }
+                if (target != null) {
+                    System.out.println("Interacting with " + target.getType() + " at " + target.getLocation());
+                    Storage.self.attackEntity(target);
+                    Storage.self.swingArm(false);
+                }
+                break;
+            case "shear":
+                new TaskSpamClickEntitiesWithItem(
+                        (e) -> {
+                            return e.getType() == EntityType.SHEEP && !((Sheep) e).isSheared();
+                        },
+                        (is) -> {
+                            return is.getType() == Material.SHEARS && is.getData() < 200;
+                        }, 45).start();
+                break;
+            case "infinishear":
+                if (Storage.infiniShear == null) {
+                    Storage.infiniShear = new TaskInfiniShear(new Location(-977, 66, 4801), new Location(-977, 68, 4803), new Location(-976, 68, 4803));
+                    Storage.infiniShear.start();
+                    respond(respondTo, "Starting infinishear");
+                } else {
+                    Storage.infiniShear.disable();
+                    respond(respondTo, "Depositing and disabling");
+                    Storage.infiniShear = null;
+                }
+                break;
+            case "bleach":
+                new TaskSpamClickEntitiesWithItem(
+                        (e) -> {
+                            return e.getType() == EntityType.SHEEP;
+                        },
+                        (is) -> {
+                            return is.getType() == Material.INK_SACK && is.getData() == 15;
+                        }, 15).start();
+                break;
+            case "floor":
+                new TaskFloor().start();
+                break;
+            case "walls":
+                new TaskWalls().start();
+                break;
+            case "run":
+
+                Class clazz = Class.forName("zbottestplugin.task." + args[0]);
 
                 break;
             case "zombies":
@@ -420,10 +527,6 @@ public class CommandProcessor {
                     Storage.self.cancelTask(Storage.zombieTaskId);
                     Storage.zombieTaskId = -1;
                 }
-                break;
-            case "thread":
-                ThreadTaskTest tf = new ThreadTaskTest();
-                tf.start();
                 break;
             case "welcome":
                 if (args.length >= 2) {
@@ -455,9 +558,6 @@ public class CommandProcessor {
                     Storage.fish = null;
                     Storage.self.sendChat("Enough fishing..");
                 }
-                break;
-            case "cure":
-                new TaskApple().start();
                 break;
             case "exit":
                 Storage.self.shutdown();

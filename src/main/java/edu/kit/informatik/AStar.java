@@ -10,7 +10,6 @@ import java.util.Comparator;
 import java.util.HashSet;
 import zbottestplugin.Storage;
 import zedly.zbot.Location;
-import zedly.zbot.block.Material;
 
 /**
  *
@@ -190,6 +189,21 @@ public class AStar {
         }
 
         public int compare(GeometricPath a, GeometricPath b) {
+            if(a == null) {
+                System.err.println("a == null");
+                System.out.println(targetLoc);
+            }
+            if(b == null) {
+                System.err.println("b == null");
+                System.out.println(targetLoc);
+            }
+            if(a.getEndPoint() == null) {
+                System.err.println("a.ep == null");
+            }
+            if(b.getEndPoint() == null) {
+                System.err.println("b.ep == null");
+            }
+            
             double h = aggressiveness * a.getEndPoint().distanceTo(targetLoc)
                     + a.getLength()
                     - aggressiveness * b.getEndPoint().distanceTo(targetLoc)
@@ -215,6 +229,7 @@ public class AStar {
         NONSOLID_BLOCKS.add(63);
         NONSOLID_BLOCKS.add(65);
         NONSOLID_BLOCKS.add(68);
+        NONSOLID_BLOCKS.add(83);
         NONSOLID_BLOCKS.add(175);
         FORBIDDEN_BLOCKS = new HashSet<>();
         FORBIDDEN_BLOCKS.add(9);
@@ -226,6 +241,7 @@ public class AStar {
         FORBIDDEN_BLOCKS.add(185);
         FORBIDDEN_BLOCKS.add(186);
         FORBIDDEN_BLOCKS.add(187);
+        FORBIDDEN_BLOCKS.add(190);
         FORBIDDEN_BLOCKS.add(113);
     }
 }

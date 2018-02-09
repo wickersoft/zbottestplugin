@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import zedly.zbot.Location;
 import zedly.zbot.entity.Entity;
 import zedly.zbot.entity.Monster;
+import zedly.zbot.entity.Squid;
 import zedly.zbot.util.Vector;
 
 /**
@@ -24,7 +25,7 @@ public class TaskDefender implements Runnable {
         //System.out.println("Running");
         enemies.clear();
         for (Entity e : Storage.self.getEnvironment().getEntities()) {
-            if (e instanceof Monster) {
+            if (e instanceof Monster || e instanceof Squid) {
                 enemies.add(e);
             }
         }

@@ -39,6 +39,7 @@ public class Storage {
     public static TaskSpamBroadcast spammer;
     public static Watcher watcher;
     public static YamlConfiguration config;
+    public static TaskInfiniShear infiniShear;
     
     public static int zombieTaskId = -1;
     public static int debugEntity = 0;

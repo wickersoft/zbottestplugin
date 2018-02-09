@@ -62,7 +62,7 @@ public class ZBotTestPlugin extends ZBotPlugin {
 
         if (config.getBoolean("broadcast.enable", false)) {
             System.out.println("Enabling Broadcaster");
-            Storage.self.scheduleSyncRepeatingTask(this, Storage.spammer, 600000, 600000);
+            Storage.self.scheduleSyncRepeatingTask(this, Storage.spammer, config.getInt("broadcast.delay", 900) * 1000);
         }
         if (config.getBoolean("defend", false)) {
             System.out.println("Enabling Defender");

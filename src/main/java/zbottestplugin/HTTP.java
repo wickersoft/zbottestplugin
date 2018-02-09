@@ -75,6 +75,18 @@ public class HTTP {
         URL myurl = new URL(url);
         HttpURLConnection con = (HttpURLConnection) myurl.openConnection();
         con.setConnectTimeout(30000);
+        con.setReadTimeout(30000);
+        con.setRequestMethod("GET");
+        con.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.64 Safari/537.31");
+        con.setDoInput(true);
+        return receiveContent(con);
+    }
+    
+    public static HTTPResponse httpFast(String url, int timeout) throws IOException {
+        URL myurl = new URL(url);
+        HttpURLConnection con = (HttpURLConnection) myurl.openConnection();
+        con.setConnectTimeout(timeout);
+        con.setReadTimeout(timeout);
         con.setRequestMethod("GET");
         con.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.64 Safari/537.31");
         con.setDoInput(true);

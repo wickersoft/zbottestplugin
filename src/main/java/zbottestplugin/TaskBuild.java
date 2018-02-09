@@ -6,6 +6,7 @@
 package zbottestplugin;
 
 import zedly.zbot.Location;
+import zedly.zbot.environment.BlockFace;
 
 /**
  *
@@ -69,7 +70,7 @@ public class TaskBuild extends Thread {
                     }
                     //pause(millis);
                 }
-                Storage.self.placeBlock(x + jx * j, y - 2 + i, z + jz * j);
+                Storage.self.placeBlock(x + jx * j, y - 2 + i, z + jz * j, BlockFace.UP);
             }
             if (++i > height) {
                 break;
@@ -83,7 +84,7 @@ public class TaskBuild extends Thread {
                     }
                     //pause(millis);
                 }
-                Storage.self.placeBlock(x + jx * j, y - 2 + i, z + jz * j);
+                Storage.self.placeBlock(x + jx * j, y - 2 + i, z + jz * j, BlockFace.UP);
             }
         }
         Storage.self.sendChat("Done!");
