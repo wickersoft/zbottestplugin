@@ -48,6 +48,7 @@ public class ZBotTestPlugin extends ZBotPlugin {
         }
         self.registerEvents(Storage.recorder);
         self.registerEvents(Storage.watcher);
+        //self.registerEvents(new ScrambleWatcher());
     }
 
     @Override

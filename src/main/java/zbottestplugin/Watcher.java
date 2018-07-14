@@ -28,8 +28,8 @@ import zedly.zbot.entity.EntityMeta;
  */
 public class Watcher implements Listener {
 
-    private final Pattern p = Pattern.compile("^<(.*?)> (.*)$");
-    private final Pattern pmp = Pattern.compile("^\\[(.*?) -> me\\] (.*)$");
+    private final Pattern p = Pattern.compile("^\\[[VMT]\\].*<(.*?)> (.*)$");
+    private final Pattern pmp = Pattern.compile("^\\[\\[[VMT]\\].*<(.*?)> -> me\\] (.*)$");
     private final Pattern urlp = Pattern.compile("(https?:\\/\\/\\S+)");
     private final Pattern cp;
     private final Pattern welcomePattern = Pattern.compile("^Everybody welcome (.+) to the server!$");
@@ -59,7 +59,7 @@ public class Watcher implements Listener {
         if (Storage.self.getServerConnection().getIp().equals("85.131.153.100")
                 || Storage.self.getServerConnection().getIp().equals("127.0.0.1")
                 || Storage.self.getServerConnection().getIp().equals("155.254.35.239")) {
-            rp = "\\(.+\\)";
+            rp = "";
         } else {
             rp = "\\[.+\\] ";
         }
@@ -187,7 +187,7 @@ public class Watcher implements Listener {
             if (http.getHeaders().containsKey("Location")) {
                 return getTitleForSite(http.getHeaders().get("Location").get(0), depth + 1);
             }
-            String html = new String(http.getContent());
+            String html = new String(http.getContent(), "UTF-8");
             if (html.equals("")) {
                 return null;
             }

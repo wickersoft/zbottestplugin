@@ -68,14 +68,14 @@ public class CommandProcessor {
                 }
                 try {
                     int offset = 0;
-                    HTTPResponse http = HTTP.https("https://www.google.com/search?q=" + URLEncoder.encode(command.substring(7), "UTF-8"));
+                    HTTPResponse http = HTTP.https("https://www.google.com/search?lr=lang_en&q=" + URLEncoder.encode(command.substring(7), "UTF-8"));
                     String html = new String(http.getContent());
                     String[] links = StringUtil.extractAll(html, "<h3 class=\"r\"><a href=\"", "\"");
-                    for (String s : links) {
-                        System.out.println(s);
+                    if(links.length >=1) {
+                        System.out.println(links[0]);
                         //TODO: tinyurl
                         Storage.watcher.previewNextLink();
-                        respond(respondTo, s);
+                        respond(respondTo, links[0]);
                         return;
                     }
                     respond(respondTo, "No results! :(");
@@ -127,7 +127,7 @@ public class CommandProcessor {
                 respond(respondTo, "Translating " + args[1] + " from " + sourceLanguage + " to " + targetLanguage + "!");
                 break;
         }
-        if (!player.equals("brainiac94") && !player.equals("Veresen") && !player.equals("beddong")) {
+        if (!player.equals("brainiac94") && !player.equals("Veresen") && !player.equals("beddong") && !player.equals("FixedTomaTo")) {
             return;
         }
         switch (args[0]) {

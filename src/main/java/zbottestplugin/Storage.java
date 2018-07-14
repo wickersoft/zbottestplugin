@@ -23,12 +23,14 @@ public class Storage {
     public static final HashSet<String> languageCodes = new HashSet<>();
     public static final HashMap<String, String> languageAliases = new HashMap<>();
     public static final TaskRoam roamer = new TaskRoam();
+    public static final ArrayList<String> banMessages = new ArrayList<>();
     
     public static Self self;
     public static BufferedOutputStream os;
     public static ZBotTestPlugin plugin;
+    
+    // TODO: Replace these by single Active Task field or objective tree
     public static MotionRecorder recorder = new MotionRecorder();
-    public static ArrayList<String> banMessages = new ArrayList<>();
     public static Random rnd = new Random();
     public static Synchronizer synch = new Synchronizer();
     public static ThreadTranslator translatorThread = new ThreadTranslator();
@@ -38,8 +40,8 @@ public class Storage {
     public static TaskHeadFollow follower;
     public static TaskSpamBroadcast spammer;
     public static Watcher watcher;
-    public static YamlConfiguration config;
     public static TaskInfiniShear infiniShear;
+    
     
     public static int zombieTaskId = -1;
     public static int debugEntity = 0;
