@@ -3,10 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package zbottestplugin;
+package zbottestplugin.oldshit;
 
 import edu.kit.informatik.Graph;
 import edu.kit.informatik.Node;
+import zbottestplugin.ConcurrentLinkedQueue;
+import zbottestplugin.Storage;
 import zedly.zbot.Location;
 import zedly.zbot.event.EventHandler;
 import zedly.zbot.event.Listener;

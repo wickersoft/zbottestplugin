@@ -5,23 +5,40 @@
  */
 package zbottestplugin;
 
+import zbottestplugin.oldshit.TaskFloor;
+import zbottestplugin.oldshit.TranslationService;
+import zbottestplugin.oldshit.TaskWalls;
+import zbottestplugin.oldshit.TaskFish;
 import edu.kit.informatik.AStar;
 import edu.kit.informatik.GeometricPath;
 import edu.kit.informatik.Node;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import net.minecraft.server.NBTBase;
+import net.minecraft.server.NBTTagCompound;
+import net.minecraft.server.NBTTagList;
 import zbottestplugin.HTTP.HTTPResponse;
 import zedly.zbot.ClientSettings;
 import zedly.zbot.EntityType;
 import zedly.zbot.entity.Entity;
 import zedly.zbot.entity.Player;
 import zedly.zbot.Location;
+import zedly.zbot.inventory.Enchantment;
 import zedly.zbot.inventory.ItemStack;
 import zedly.zbot.environment.Block;
 import org.bukkit.Material;
+import zbottestplugin.enchantengine.EnchantEngine;
+import zbottestplugin.enchantengine.LibraryLocation;
+import zbottestplugin.enchantengine.TaskLookUpOneSlot;
+import zbottestplugin.enchantengine.TaskRetrieveOneItem;
+import zbottestplugin.enchantengine.TaskScanLibrary;
 import zedly.zbot.entity.FallingBlock;
 import zedly.zbot.entity.Item;
 import zedly.zbot.entity.LivingEntity;
@@ -29,6 +46,8 @@ import zedly.zbot.entity.Sheep;
 import zedly.zbot.entity.Tameable;
 import zedly.zbot.entity.Unknown;
 import zedly.zbot.environment.BlockFace;
+import zedly.zbot.inventory.FurnaceInventory;
+import zedly.zbot.inventory.Inventory;
 
 /**
  *
@@ -71,7 +90,7 @@ public class CommandProcessor {
                     HTTPResponse http = HTTP.https("https://www.google.com/search?lr=lang_en&q=" + URLEncoder.encode(command.substring(7), "UTF-8"));
                     String html = new String(http.getContent());
                     String[] links = StringUtil.extractAll(html, "<h3 class=\"r\"><a href=\"", "\"");
-                    if(links.length >=1) {
+                    if (links.length >= 1) {
                         System.out.println(links[0]);
                         //TODO: tinyurl
                         Storage.watcher.previewNextLink();
@@ -127,7 +146,7 @@ public class CommandProcessor {
                 respond(respondTo, "Translating " + args[1] + " from " + sourceLanguage + " to " + targetLanguage + "!");
                 break;
         }
-        if (!player.equals("brainiac94") && !player.equals("Veresen") && !player.equals("beddong") && !player.equals("FixedTomaTo")) {
+        if (!player.equals("brainiac94") && !player.equals("Veresen") && !player.equals("beddong") && !player.equals("Apple")) {
             return;
         }
         switch (args[0]) {
@@ -378,7 +397,6 @@ public class CommandProcessor {
                     }
                     break;
              */
-
             case "rm":
                 if (args.length == 3) {
                     switch (args[1]) {
@@ -426,7 +444,7 @@ public class CommandProcessor {
             case "interact":
                 Entity target = null;
                 if (args.length == 2) {
-                    int eid = Integer.parseInt(args[2]);
+                    int eid = Integer.parseInt(args[1]);
                     target = Storage.self.getEnvironment().getEntityById(eid);
                     if (target == null) {
                         respond(respondTo, "Can't see that entity");
@@ -508,6 +526,108 @@ public class CommandProcessor {
                             return is.getType() == Material.INK_SACK && is.getData() == 15;
                         }, 15).start();
                 break;
+            case "cows":
+                new TaskSpamClickEntitiesWithItem(
+                        (e) -> {
+                            return e.getType() == EntityType.COW;
+                        },
+                        (is) -> {
+                            return is.getType() == Material.WHEAT;
+                        }, 15).start();
+                break;
+            case "nbt":
+                ItemStack is = Storage.self.getInventory().getItemInHand();
+                NBTBase k = is.getNbt();
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                DataOutputStream dos = new DataOutputStream(bos);
+                k.write(dos);
+                dos.close();
+                byte[] raw = bos.toByteArray();
+                for (byte b : raw) {
+                    System.out.printf("%02x ", b);
+                }
+                if (k.getId() != 10) {
+                    Storage.self.sendChat("Root tag not a compound");
+                    break;
+                }
+                NBTTagCompound l = (NBTTagCompound) k;
+                k = l.getTag("ench");
+
+                if (k.getId() != 9) {
+                    Storage.self.sendChat("'ench' tag not a list");
+                    break;
+                }
+                NBTTagList n = (NBTTagList) k;
+                int count = n.tagCount();
+                Storage.self.sendChat(count + " enchants:");
+                for (int i = 0; i < count; i++) {
+                    NBTTagCompound m = (NBTTagCompound) n.tagAt(i);
+                    Storage.self.sendChat("ench " + i + ": id" + m.getShort("id") + " lvl " + m.getShort("lvl"));
+                }
+                break;
+            case "ench":
+                is = Storage.self.getInventory().getItemInHand();
+                String enchString = EnchantEngine.stringifyItem(is);
+                if (enchString.length() < 200) {
+                    Storage.self.sendChat(enchString);
+                } else {
+                    Storage.self.sendChat("<" + enchString.length() + " characters>");
+                    System.out.println(enchString);
+                }
+                break;
+            case "lore":
+                is = Storage.self.getInventory().getSlot(Storage.self.getInventory().getSelectedSlot());
+                List<String> lore = is.getLore();
+
+                if (lore == null || lore.isEmpty()) {
+                    Storage.self.sendChat("This item has no lore");
+                } else {
+                    Storage.self.sendChat(lore.size() + " lines");
+                }
+
+                for (String line : lore) {
+                    Storage.self.sendChat(line.replace("§", "&"));
+                }
+                break;
+            case "name":
+                is = Storage.self.getInventory().getSlot(Storage.self.getInventory().getSelectedSlot());
+                String name = is.getDisplayName();
+
+                if (name == null) {
+                    Storage.self.sendChat("This item has no custom name");
+                } else {
+                    Storage.self.sendChat("This item is named " + name.replace("§", "&"));
+                }
+                break;
+            case "index":
+                Storage.self.sendChat(EnchantEngine.friendlyIndex(Integer.parseInt(args[1])));
+                break;
+            case "peeklib":
+                int absoluteSlot = Integer.parseInt(args[1]);
+                new TaskLookUpOneSlot(absoluteSlot).start();
+                break;
+            case "fetchlib":
+                absoluteSlot = Integer.parseInt(args[1]);
+                new TaskRetrieveOneItem(absoluteSlot).start();
+                break;
+            case "query":
+                int results = EnchantEngine.queryEnchantment(command.substring(command.indexOf(" ") + 1));
+                respond(respondTo, "" + results + " results. sm result <n> to view");
+                break;
+            case "result":
+                int resultIndex = Integer.parseInt(args[1]);
+                if (EnchantEngine.getQueryResult(resultIndex) == -1) {
+                    respond(respondTo, "Invalid result number! Range: 1-" + EnchantEngine.getResultNumber());
+                } else {
+                    int absoluteIndex = EnchantEngine.getQueryResult(resultIndex);
+                    String itemString = EnchantEngine.getEnchantString(absoluteIndex);
+                    int estPrice = EnchantEngine.getPriceEstimate(absoluteIndex);
+                    respond(respondTo, "(" + (estPrice / 100) + "." + (estPrice % 100) + ")  Item " + absoluteIndex + ": " + itemString);
+                }
+                break;
+            case "scanlib":
+                new TaskScanLibrary().start();
+                break;
             case "floor":
                 new TaskFloor().start();
                 break;
@@ -515,9 +635,7 @@ public class CommandProcessor {
                 new TaskWalls().start();
                 break;
             case "run":
-
                 Class clazz = Class.forName("zbottestplugin.task." + args[0]);
-
                 break;
             case "zombies":
                 TaskZombieFilter filter = new TaskZombieFilter();
@@ -559,11 +677,20 @@ public class CommandProcessor {
                     Storage.self.sendChat("Enough fishing..");
                 }
                 break;
+            case "close":
+                Storage.self.closeWindow();
+                break;
+            case "window":
+                Inventory inv = Storage.self.getInventory();
+                if (inv instanceof FurnaceInventory) {
+                    FurnaceInventory fi = (FurnaceInventory) inv;
+                    Storage.self.sendChat("Furnace. Flame " + fi.getRemainingBurnTime() + "/" + fi.getMaxBurnTime() + " Arrow " + fi.getProgress() + "/" + fi.getMaxProgress());
+                }
+                break;
             case "exit":
                 Storage.self.shutdown();
                 break;
         }
-
     }
 
     private static void respond(String user, String message) {

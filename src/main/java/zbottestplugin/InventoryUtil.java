@@ -110,4 +110,22 @@ public class InventoryUtil {
         }
         return count;
     }
+
+    public static int findFreeStorageSlot(boolean staticInv) {
+        int staticStart = Storage.self.getInventory().getStaticOffset();
+        if (staticInv) {
+            for (int i = staticStart; i < staticStart + 36; i++) {
+                if(Storage.self.getInventory().getSlot(i) == null) {
+                    return i;
+                }
+            }
+        } else {
+            for (int i = 0; i < staticStart; i++) {
+                if(Storage.self.getInventory().getSlot(i) == null) {
+                    return i;
+                }
+            }            
+        }
+        return -1;
+    }
 }

@@ -5,6 +5,10 @@
  */
 package zbottestplugin;
 
+import zbottestplugin.oldshit.TaskRoam;
+import zbottestplugin.oldshit.MotionRecorder;
+import zbottestplugin.oldshit.ThreadTranslator;
+import zbottestplugin.oldshit.TaskFish;
 import edu.kit.informatik.Graph;
 import java.io.BufferedOutputStream;
 import java.util.ArrayList;

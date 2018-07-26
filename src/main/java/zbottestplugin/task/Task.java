@@ -5,7 +5,8 @@
  */
 package zbottestplugin.task;
 
-import zbottestplugin.BlockingAI;
+import zbottestplugin.Storage;
+import zbottestplugin.oldshit.BlockingAI;
 
 /**
  *
@@ -13,12 +14,15 @@ import zbottestplugin.BlockingAI;
  */
 public abstract class Task extends Thread {
     
-    protected final BlockingAI ai = new BlockingAI();
-    private int aiTaskId;
-
+    protected final BlockingAI ai;
+    protected final int aiTaskId;
     
-    public void exec() {
-        
+    public Task(int interval) {
+        this.ai = new BlockingAI();
+        aiTaskId = Storage.self.scheduleSyncRepeatingTask(Storage.plugin, ai, interval);
     }
     
+    protected void unregister() {
+        Storage.self.cancelTask(aiTaskId);
+    }    
 }

@@ -3,17 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package zbottestplugin;
+package zbottestplugin.oldshit;
 
 /**
  *
  * @author Dennis
  */
-public class TaskCarrots extends Thread {
-    
-    
-    
-    
-    
+public class SmartMover {
     
 }

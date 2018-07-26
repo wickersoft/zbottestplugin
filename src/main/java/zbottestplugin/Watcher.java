@@ -5,6 +5,8 @@
  */
 package zbottestplugin;
 
+import zbottestplugin.oldshit.DijkstraCommands;
+import zbottestplugin.oldshit.TranslationService;
 import edu.kit.informatik.Node;
 import java.io.IOException;
 import java.net.URL;
@@ -21,6 +23,9 @@ import zedly.zbot.event.PlayerSpawnEvent;
 import zedly.zbot.event.SelfTeleportEvent;
 import zedly.zbot.event.entity.EntityMetadataEvent;
 import zedly.zbot.entity.EntityMeta;
+import zedly.zbot.event.WindowOpenFinishEvent;
+import zedly.zbot.inventory.FurnaceInventory;
+import zedly.zbot.inventory.Inventory;
 
 /**
  *
@@ -201,6 +206,15 @@ public class Watcher implements Listener {
             return title;
         } catch (IOException ex) {
             return null;
+        }
+    }
+    
+    @EventHandler
+    public void onWindowOpenFinish(WindowOpenFinishEvent evt) {
+        Inventory inv = evt.getInventory();
+        if(inv instanceof FurnaceInventory) {
+            FurnaceInventory fi = (FurnaceInventory) inv;
+            Storage.self.sendChat("Opened furnace. Flame " + fi.getRemainingBurnTime() + "/" + fi.getMaxBurnTime() + " Arrow " + fi.getProgress() + "/" + fi.getMaxProgress());
         }
     }
 }

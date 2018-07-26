@@ -5,6 +5,7 @@
  */
 package zbottestplugin;
 
+import zbottestplugin.oldshit.TaskFish;
 import zedly.zbot.event.EventHandler;
 import zedly.zbot.event.Listener;
 import zedly.zbot.event.SoundEffectEvent;

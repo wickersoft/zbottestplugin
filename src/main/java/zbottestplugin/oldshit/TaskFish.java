@@ -3,9 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package zbottestplugin;
+package zbottestplugin.oldshit;
 
 import org.bukkit.Material;
+import zbottestplugin.FishWatcher;
+import zbottestplugin.InventoryUtil;
+import zbottestplugin.Storage;
 
 /**
  *

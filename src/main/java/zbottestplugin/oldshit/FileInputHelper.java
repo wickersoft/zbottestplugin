@@ -1,4 +1,4 @@
-package zbottestplugin;
+package zbottestplugin.oldshit;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;

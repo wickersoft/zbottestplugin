@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package zbottestplugin;
+package zbottestplugin.oldshit;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -15,7 +15,9 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import zbottestplugin.HTTP;
 import zbottestplugin.HTTP.HTTPResponse;
+import zbottestplugin.SimpleJson;
 
 /**
  *

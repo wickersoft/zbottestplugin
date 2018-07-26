@@ -3,9 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package zbottestplugin;
+package zbottestplugin.oldshit;
 
 import org.bukkit.Material;
+import zbottestplugin.InventoryUtil;
+import zbottestplugin.Storage;
 import zedly.zbot.environment.Block;
 import zedly.zbot.environment.BlockFace;
 
