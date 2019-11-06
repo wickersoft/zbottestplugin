@@ -3,16 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package zbottestplugin.enchantengine;
+package zbottestplugin.enchantengine2;
 
-import java.util.function.Predicate;
 import zbottestplugin.Storage;
-import zbottestplugin.oldshit.BlockingAI;
 import zbottestplugin.task.Task;
 import zedly.zbot.Location;
-import zedly.zbot.BlockFace;
 import zedly.zbot.event.WindowOpenFinishEvent;
-import zedly.zbot.inventory.ChestInventory;
 import zedly.zbot.inventory.ItemStack;
 
 /**
@@ -34,16 +30,18 @@ public class TaskLookUpOneSlot extends Task {
             LibraryLocation ll = new LibraryLocation(slotId);
             Location gotoLoc = ll.getWalkLocation();
 
-            Storage.self.sendChat("Walking to " + ll.getX() + " 35 " + ll.getWalkZ());
+            Storage.self.sendChat("Walking to " + gotoLoc.toString());
             ai.moveTo(gotoLoc.centerHorizontally());
 
-            Storage.self.sendChat("Opening " + ll.getX() + " " + ll.getY() + " " + ll.getZ());
-            Storage.self.placeBlock(ll.getLocation(), (ll.getX() % 2 != 0) ? BlockFace.SOUTH : BlockFace.NORTH);
+            Storage.self.sendChat("Opening " + ll.getLocation().toString());
+            Storage.self.placeBlock(ll.getLocation(), ll.getFaceToClick());
 
             boolean opened = ai.waitForEvent(WindowOpenFinishEvent.class, 5000);
             
             if (!opened) {
                 Storage.self.sendChat("Error: Wait for OpenWindowEvent timed out");
+                unregister();
+                return;
             }
 
             int chestSlot = ll.getSlot();

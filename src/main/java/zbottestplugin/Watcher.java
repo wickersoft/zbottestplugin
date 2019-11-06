@@ -33,8 +33,10 @@ import zedly.zbot.inventory.Inventory;
  */
 public class Watcher implements Listener {
 
-    private final Pattern p = Pattern.compile("^\\[[VMT]\\].*<(.*?)> (.*)$");
-    private final Pattern pmp = Pattern.compile("^\\[\\[[VMT]\\].*<(.*?)> -> me\\] (.*)$");
+    //private final Pattern p = Pattern.compile("^\\[[VMT]\\].*<(.*?)> (.*)$");
+    //private final Pattern pmp = Pattern.compile("^\\[\\[[VMT]\\].*<(.*?)> -> me\\] (.*)$");
+    private final Pattern p = Pattern.compile("^.*<(.*?)> (.*)$");
+    private final Pattern pmp = Pattern.compile("^\\[.*<(.*?)> -> Me\\] (.*)$");
     private final Pattern urlp = Pattern.compile("(https?:\\/\\/\\S+)");
     private final Pattern cp;
     private final Pattern welcomePattern = Pattern.compile("^Everybody welcome (.+) to the server!$");
@@ -48,6 +50,12 @@ public class Watcher implements Listener {
     public Watcher() {
         resolveLinks = Storage.plugin.getConfig().getBoolean("resolveLinks", false);
         switch (Storage.self.getServerConnection().getUsername()) {
+            case "Donald_Trump__":
+                cp = Pattern.compile("^don (.+)");
+                break;
+            case "Mike_Pence__":
+                cp = Pattern.compile("^mike (.+)");
+                break;
             case "SayakaMiki_":
                 cp = Pattern.compile("^sm (.+)");
                 break;

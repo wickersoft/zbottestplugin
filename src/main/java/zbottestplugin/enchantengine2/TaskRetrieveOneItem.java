@@ -1,5 +1,6 @@
-package zbottestplugin.enchantengine;
+package zbottestplugin.enchantengine2;
 
+import zbottestplugin.enchantengine.*;
 import zbottestplugin.InventoryUtil;
 import zbottestplugin.Storage;
 import zbottestplugin.task.Task;
@@ -8,7 +9,6 @@ import zedly.zbot.inventory.ItemStack;
 
 public class TaskRetrieveOneItem extends Task {
 
-    private static final Location OUTPUT_LOC = new Location(-901, 35, 4851);
     private final int slotId;
 
     public TaskRetrieveOneItem(int slot) {
@@ -23,8 +23,9 @@ public class TaskRetrieveOneItem extends Task {
 
             Storage.self.sendChat("Fetching item " + EnchantEngine.friendlyIndex(slotId));
             ai.moveTo(gotoLoc.centerHorizontally());
-            ai.openContainer(ll.getX(), ll.getY(), ll.getZ());
+            ai.openContainer(ll.getLocation());
             int chestSlot = ll.getSlot();
+
             ItemStack is = Storage.self.getInventory().getSlot(chestSlot);
             if (is == null) {
                 Storage.self.sendChat("Slot " + EnchantEngine.friendlyIndex(ll) + "(" + slotId + ") contains nothing");
@@ -38,8 +39,8 @@ public class TaskRetrieveOneItem extends Task {
             destSlot -= Storage.self.getInventory().getStaticOffset();
             ai.closeContainer();
             
-            ai.moveTo(OUTPUT_LOC.centerHorizontally());
-            ai.openContainer(-901, 35, 4848);          
+            ai.moveTo(zbottestplugin.enchantengine2.EnchantEngine.OUTPUT_LOC.centerHorizontally());
+            ai.openContainer(EnchantEngine.OUTPUT_CHEST);          
             ai.depositSlot(destSlot + Storage.self.getInventory().getStaticOffset());            
             ai.closeContainer();
             Storage.self.sendChat("Done!");

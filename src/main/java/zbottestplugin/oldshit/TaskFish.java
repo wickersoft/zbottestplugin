@@ -5,7 +5,7 @@
  */
 package zbottestplugin.oldshit;
 
-import org.bukkit.Material;
+import zedly.zbot.Material;
 import zbottestplugin.FishWatcher;
 import zbottestplugin.InventoryUtil;
 import zbottestplugin.Storage;
@@ -26,7 +26,7 @@ public class TaskFish extends Thread {
         watcher = new FishWatcher(this);
         aiId = Storage.self.scheduleSyncRepeatingTask(Storage.plugin, ai, 1, 1);
         Storage.self.registerEvents(watcher);
-        InventoryUtil.findAndSelect(Material.FISHING_ROD);
+        InventoryUtil.findAndSelect(Material.FISHING_ROD, 1);
         try {
             ai.tick(10);
             while (isRunning()) {

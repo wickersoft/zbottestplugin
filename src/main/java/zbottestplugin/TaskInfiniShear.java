@@ -9,10 +9,10 @@ import zbottestplugin.oldshit.BlockingAI;
 import java.util.ArrayList;
 import java.util.Collections;
 import zedly.zbot.Location;
-import org.bukkit.Material;
+import zedly.zbot.Material;
 import zedly.zbot.entity.Entity;
 import zedly.zbot.entity.Sheep;
-import zedly.zbot.environment.BlockFace;
+import zedly.zbot.BlockFace;
 import zedly.zbot.util.Vector;
 
 /**
@@ -78,7 +78,7 @@ public class TaskInfiniShear extends Thread {
                     System.out.println("Progress: " + i + "/" + shearableSheep.size());
 
                     while (!InventoryUtil.findAndSelect((is) -> {
-                        return is.getType() == Material.SHEARS && is.getData() < 200;
+                        return is.getType() == Material.SHEARS; // && durability < 200
                     })) {
                         System.out.println("Ran out of tool/item");
                         Storage.self.sneak(true);
@@ -105,7 +105,7 @@ public class TaskInfiniShear extends Thread {
                 Storage.self.sneak(false);
 
                 InventoryUtil.findAndSelect((is) -> {
-                    return is.getType() == Material.WOOL;
+                    return is.getType() == Material.WHITE_WOOL;
                 });
                 // Spam wool into tesseracts
                 ai.moveTo(deliverLoc);

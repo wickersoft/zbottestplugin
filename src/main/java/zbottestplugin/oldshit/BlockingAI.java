@@ -15,7 +15,7 @@ import zbottestplugin.InventoryUtil;
 import zbottestplugin.Storage;
 import zedly.zbot.event.Event;
 import zedly.zbot.Location;
-import zedly.zbot.environment.BlockFace;
+import zedly.zbot.BlockFace;
 import zedly.zbot.event.EventHandler;
 import zedly.zbot.event.Listener;
 import zedly.zbot.event.SlotUpdateEvent;
@@ -31,10 +31,20 @@ public class BlockingAI implements Runnable {
 
     private final double stepResolution = 0.4;
     private final Object lock = "";
+    private final Object timestopLock = "kek";
+    private boolean timeStop = false;
 
     public void run() {
         synchronized (lock) {
             lock.notifyAll();
+        }
+        if (timeStop) {
+            try {
+                synchronized (timestopLock) {
+                    timestopLock.wait();
+                }
+            } catch (InterruptedException ex) {
+            }
         }
     }
 
@@ -106,6 +116,10 @@ public class BlockingAI implements Runnable {
     }
 
     public void tick() throws InterruptedException {
+        timeStop = false;
+        synchronized (timestopLock) {
+            timestopLock.notifyAll();
+        }
         synchronized (lock) {
             lock.wait();
         }
@@ -115,6 +129,11 @@ public class BlockingAI implements Runnable {
         for (int i = 0; i < ticks; i++) {
             tick();
         }
+    }
+
+    public void timeStop() throws InterruptedException {
+        timeStop = true;
+        tick();
     }
 
     public <T extends Event> boolean waitForEvent(final Class<T> eventClass, Predicate<Event> eventFilter, int timeoutMillis) throws InterruptedException {
@@ -158,11 +177,19 @@ public class BlockingAI implements Runnable {
         return true;
     }
 
+    public boolean openContainer(Location loc) throws InterruptedException {
+        return openContainer(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+    }
+
     public boolean closeContainer() throws InterruptedException {
         //final int expectedSlot = Storage.self.getInventory().getSelectedSlot() + 9;
         Storage.self.closeWindow();
-        boolean closed = waitForEvent(SlotUpdateEvent.class, 5000);
-        return closed;
+        if (Storage.self.getInventory().changed()) {
+            boolean closed = waitForEvent(SlotUpdateEvent.class, 5000);
+            return closed;
+        }
+        tick();
+        return true;
     }
 
     public int withdrawSlot(int sourceSlot) throws InterruptedException {
@@ -197,7 +224,7 @@ public class BlockingAI implements Runnable {
         waitForEvent(TransactionResponseEvent.class, (e) -> {
             confirm.set(((TransactionResponseEvent) e).getStatus() == 1);
             return true;
-        }, 5000);
+        }, 15000);
         return confirm.get();
     }
 

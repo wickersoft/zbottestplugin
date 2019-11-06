@@ -5,11 +5,11 @@
  */
 package zbottestplugin.oldshit;
 
-import org.bukkit.Material;
+import zedly.zbot.Material;
 import zbottestplugin.InventoryUtil;
 import zbottestplugin.Storage;
 import zedly.zbot.environment.Block;
-import zedly.zbot.environment.BlockFace;
+import zedly.zbot.BlockFace;
 
 /**
  *
@@ -34,8 +34,7 @@ public class TaskWalls extends Thread {
 
                 // Select the right material, derp if run out
                 while (!InventoryUtil.findAndSelect((is) -> {
-                    return is.getType() == ((inFloorLevel == 5 || inFloorLevel == 6) ? Material.WOOL : Material.STAINED_GLASS)
-                            && is.getData() == 15;
+                    return is.getType() == ((inFloorLevel == 5 || inFloorLevel == 6) ? Material.BLACK_WOOL : Material.BLACK_STAINED_GLASS);
                 })) {
                     Storage.self.sneak(true);
                     ai.tick(5);

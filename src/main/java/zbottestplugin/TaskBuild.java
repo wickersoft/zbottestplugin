@@ -6,7 +6,7 @@
 package zbottestplugin;
 
 import zedly.zbot.Location;
-import zedly.zbot.environment.BlockFace;
+import zedly.zbot.BlockFace;
 
 /**
  *

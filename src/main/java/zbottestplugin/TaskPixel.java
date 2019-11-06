@@ -11,8 +11,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import javax.imageio.ImageIO;
 import zedly.zbot.Location;
-import org.bukkit.Material;
-import zedly.zbot.environment.BlockFace;
+import zedly.zbot.Material;
+import zedly.zbot.BlockFace;
 
 /**
  *
@@ -121,7 +121,7 @@ public class TaskPixel extends Thread {
             System.out.println("Unknown RGB value " + Integer.toHexString(rgb));
             stack = itemMap.get(0xFFFFFF);
         }
-        InventoryUtil.findAndSelect(stack.getMaterial(), stack.getDamage());
+        InventoryUtil.findAndSelect(stack.getMaterial(), 64);
 
         
         switch (rgb & 0xFFFFFF) {
@@ -164,22 +164,22 @@ public class TaskPixel extends Thread {
         itemMap.put(0xFFFFFF, new ItemStack(Material.GLASS));
         itemMap.put(0x63DBD5, new ItemStack(Material.DIAMOND_BLOCK));
         itemMap.put(0x14121D, new ItemStack(Material.OBSIDIAN));
-        itemMap.put(0x1A1717, new ItemStack(Material.WOOL, (short) 15)); // Black
-        itemMap.put(0xA32C28, new ItemStack(Material.WOOL, (short) 14)); // Red
-        itemMap.put(0xA32C28, new ItemStack(Material.WOOL, (short) 13)); // Orange
-        itemMap.put(0x55331B, new ItemStack(Material.WOOL, (short) 12)); // Brown
-        itemMap.put(0x263399, new ItemStack(Material.WOOL, (short) 11)); // Blue
-        itemMap.put(0x8135C3, new ItemStack(Material.WOOL, (short) 10)); // Purple
-        itemMap.put(0x277495, new ItemStack(Material.WOOL, (short) 9)); // Cyan
-        itemMap.put(0x9EA5A5, new ItemStack(Material.WOOL, (short) 8)); // LightGray
-        itemMap.put(0x424242, new ItemStack(Material.WOOL, (short) 7)); // Gray
-        itemMap.put(0xA32C28, new ItemStack(Material.WOOL, (short) 6)); // Red
-        itemMap.put(0x3BBC2F, new ItemStack(Material.WOOL, (short) 5)); // Lime
-        itemMap.put(0xC2B41C, new ItemStack(Material.WOOL, (short) 4)); // Yellow
-        itemMap.put(0x678AD3, new ItemStack(Material.WOOL, (short) 3)); // LightBlue
-        itemMap.put(0xBE4BC8, new ItemStack(Material.WOOL, (short) 2)); // Magenta
-        itemMap.put(0xEA7F36, new ItemStack(Material.WOOL, (short) 1)); // Orange
-        itemMap.put(0xDBDBDB, new ItemStack(Material.WOOL, (short) 0)); // White
+        itemMap.put(0x1A1717, new ItemStack(Material.BLACK_WOOL, (short) 15)); // Black
+        itemMap.put(0xA32C28, new ItemStack(Material.RED_WOOL, (short) 14)); // Red
+        itemMap.put(0xA32C28, new ItemStack(Material.ORANGE_WOOL, (short) 13)); // Orange
+        itemMap.put(0x55331B, new ItemStack(Material.BROWN_WOOL, (short) 12)); // Brown
+        itemMap.put(0x263399, new ItemStack(Material.BLUE_WOOL, (short) 11)); // Blue
+        itemMap.put(0x8135C3, new ItemStack(Material.PURPLE_WOOL, (short) 10)); // Purple
+        itemMap.put(0x277495, new ItemStack(Material.CYAN_WOOL, (short) 9)); // Cyan
+        itemMap.put(0x9EA5A5, new ItemStack(Material.LIGHT_GRAY_WOOL, (short) 8)); // LightGray
+        itemMap.put(0x424242, new ItemStack(Material.GRAY_WOOL, (short) 7)); // Gray
+        itemMap.put(0xA32C28, new ItemStack(Material.RED_WOOL, (short) 6)); // Red
+        itemMap.put(0x3BBC2F, new ItemStack(Material.LIME_WOOL, (short) 5)); // Lime
+        itemMap.put(0xC2B41C, new ItemStack(Material.YELLOW_WOOL, (short) 4)); // Yellow
+        itemMap.put(0x678AD3, new ItemStack(Material.LIGHT_BLUE_WOOL, (short) 3)); // LightBlue
+        itemMap.put(0xBE4BC8, new ItemStack(Material.MAGENTA_WOOL, (short) 2)); // Magenta
+        itemMap.put(0xEA7F36, new ItemStack(Material.ORANGE_WOOL, (short) 1)); // Orange
+        itemMap.put(0xDBDBDB, new ItemStack(Material.WHITE_WOOL, (short) 0)); // White
     }
 
 }

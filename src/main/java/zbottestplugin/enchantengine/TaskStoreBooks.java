@@ -3,12 +3,23 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package zbottestplugin;
+package zbottestplugin.enchantengine;
+
+import zbottestplugin.task.Task;
 
 /**
  *
  * @author Dennis
  */
-public class TaskSkeletonCamper {
+public class TaskStoreBooks extends Task {
+    
+    
+    
+    
+    public TaskStoreBooks(int interval) {
+        super(interval);
+    }
+    
+    
     
 }

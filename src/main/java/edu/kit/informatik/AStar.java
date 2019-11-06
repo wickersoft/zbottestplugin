@@ -10,6 +10,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import zbottestplugin.Storage;
 import zedly.zbot.Location;
+import zedly.zbot.Material;
 
 /**
  *
@@ -60,7 +61,7 @@ public class AStar {
 
             if (!isVisited(x, y + 1, z)
                     && isBlockFree(x, y + 2, z)
-                    && Storage.self.getEnvironment().getBlockAt(x, y, z).getTypeId() == 65) {
+                    && Storage.self.getEnvironment().getBlockAt(x, y, z).getType() == Material.LADDER) {
                 /*
                     There is a ladder leading up
                  */
@@ -71,7 +72,7 @@ public class AStar {
 
             if (!isVisited(x, y - 1, z)
                     && isBlockFree(x, y - 1, z)
-                    && Storage.self.getEnvironment().getBlockAt(x, y - 1, z).getTypeId() == 65) {
+                    && Storage.self.getEnvironment().getBlockAt(x, y - 1, z).getType() == Material.LADDER) {
                 /*
                     There is a ladder leading down
                  */
@@ -153,14 +154,14 @@ public class AStar {
     }
 
     private static final boolean isBlockWalkable(int x, int y, int z) {
-        if (Storage.self.getEnvironment().getBlockAt(x, y, z).getTypeId() == 65) {
+        if (Storage.self.getEnvironment().getBlockAt(x, y, z).getType() == Material.LADDER) {
             return true;
         }
-        return !isBlockFree(x, y, z) && !FORBIDDEN_BLOCKS.contains(Storage.self.getEnvironment().getBlockAt(x, y, z).getTypeId());
+        return !isBlockFree(x, y, z);// && !FORBIDDEN_BLOCKS.contains(Storage.self.getEnvironment().getBlockAt(x, y, z).getTypeId());
     }
 
     private static final boolean isBlockFree(int x, int y, int z) {
-        return NONSOLID_BLOCKS.contains(Storage.self.getEnvironment().getBlockAt(x, y, z).getTypeId());
+        return !Storage.self.getEnvironment().getBlockAt(x, y, z).getType().isSolid(); //NONSOLID_BLOCKS.contains(Storage.self.getEnvironment().getBlockAt(x, y, z).getTypeId());
     }
 
     private static final void resetVisited() {

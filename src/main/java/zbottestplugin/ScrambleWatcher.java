@@ -33,25 +33,28 @@ public class ScrambleWatcher implements Listener {
     public ScrambleWatcher() {
         loadScrambleDictionary();
     }
+
     @EventHandler
     public void onChat(ChatEvent evt) {
         //System.out.println(evt.getRawMessage());
         if (evt.getRawMessage().contains("{\"color\":\"aqua\",\"text\":\"Hover for the word to unscramble!\"}")) {
             boolean answerScramble = Storage.rnd.nextDouble() < ZBotTestPlugin.config.getDouble("scrambleChance", 0);
-            if (answerScramble) {
-                Matcher m = scramblePattern.matcher(evt.getRawMessage());
-                if (m.find()) {
-                    String anagram = m.group(1);
-                    for (String s : scrambleWords) {
-                        if (StringUtil.isAnagram(anagram, s)) {
+            Matcher m = scramblePattern.matcher(evt.getRawMessage());
+            if (m.find()) {
+                String anagram = m.group(1);
+                for (String s : scrambleWords) {
+                    if (StringUtil.isAnagram(anagram, s)) {
+                        if (answerScramble) {
                             Storage.self.sendChat(s);
-                            return;
                         }
+                        System.out.println("Scramble Challenge: " + anagram + "  Solution: " + s);
+                        return;
                     }
-                    System.out.println("Scramble: Unknown word " + anagram);
-                    return;
                 }
+                System.out.println("Scramble: Unknown word " + anagram);
+                return;
             }
+
         }
         String solution = null;
         if (evt.getRawMessage().contains("{\"color\":\"green\",\"text\":\"unscrambled the word \"}")) {

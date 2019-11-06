@@ -10,6 +10,7 @@ import zedly.zbot.Location;
 import zedly.zbot.entity.Entity;
 import zedly.zbot.entity.Monster;
 import zedly.zbot.entity.Zombie;
+import zedly.zbot.entity.ZombieVillager;
 import zedly.zbot.util.Vector;
 
 /**
@@ -26,11 +27,8 @@ public class TaskZombieFilter implements Runnable {
         enemies.clear();
         for (Entity e : Storage.self.getEnvironment().getEntities()) {
             if (e instanceof Monster) {
-                if(e instanceof Zombie) {
-                    Zombie z = (Zombie) e;
-                    if(((Zombie) e).isVillager()) {
-                        continue;
-                    }
+                if(e instanceof ZombieVillager) {
+                    continue;
                 }
                 enemies.add(e);
             }

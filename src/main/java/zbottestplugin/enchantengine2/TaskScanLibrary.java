@@ -3,11 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package zbottestplugin.enchantengine;
+package zbottestplugin.enchantengine2;
 
 import zbottestplugin.Storage;
 import zbottestplugin.task.Task;
-import zedly.zbot.Location;
 import zedly.zbot.inventory.ItemStack;
 
 /**
@@ -16,9 +15,6 @@ import zedly.zbot.inventory.ItemStack;
  */
 public class TaskScanLibrary extends Task {
 
-    private static final int MAX_INDEX = 2500;
-    private static final int CHEST_SIZE = 54;
-
     public TaskScanLibrary() {
         super(50);
     }
@@ -26,20 +22,22 @@ public class TaskScanLibrary extends Task {
     public void run() {
         int seenBooks = 0;
         try {
-            for (int slotId = 0; slotId < MAX_INDEX; slotId += CHEST_SIZE) {
+            for (int slotId = 0;; slotId += EnchantEngine.CHEST_SIZE) {
                 LibraryLocation ll = new LibraryLocation(slotId);
                 ai.moveTo(ll.getWalkLocation());
 
                 System.out.println("opening chest " + EnchantEngine.friendlyIndex(ll));
-                if (!ai.openContainer(ll.getX(), ll.getY(), ll.getZ())) {
+                if (!ai.openContainer(ll.getLocation())) {
                     System.out.println("Error opening chest " + EnchantEngine.friendlyIndex(ll));
                     continue;
                 }
 
-                for (int i = 0; i < CHEST_SIZE; i++) {
+                boolean chestEmpty = true;
+                for (int i = 0; i < EnchantEngine.CHEST_SIZE; i++) {
                     ItemStack is = Storage.self.getInventory().getSlot(i);
                     if (is != null) {
                         seenBooks++;
+                        chestEmpty = false;
                     }
                     EnchantEngine.rememberItemString(slotId + i, EnchantEngine.stringifyItem(is));
                     EnchantEngine.getPriceEstimate(slotId + i);
@@ -47,11 +45,13 @@ public class TaskScanLibrary extends Task {
 
                 System.out.println("seenbooks: " + seenBooks + ". closing chest " + EnchantEngine.friendlyIndex(ll));
                 Storage.self.closeWindow();
-                ai.tick();
+                ai.tick(10);
+                if (chestEmpty) {
+                    break;
+                }
             }
             Storage.self.sendChat("Done! Indexed " + seenBooks + " items");
-            ai.moveTo(new Location(-902, 38, 4859).centerHorizontally());
-            Storage.self.sendChat("/home spawner");
+            ai.moveTo(EnchantEngine.HOME_LOC);
         } catch (InterruptedException ex) {
         }
         unregister();

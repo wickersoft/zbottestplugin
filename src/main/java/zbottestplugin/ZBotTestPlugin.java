@@ -74,10 +74,6 @@ public class ZBotTestPlugin extends ZBotPlugin {
     @Override
     public void onQuit() {
         System.out.println("Quit!");
-        StackTraceElement[] trace = Thread.getAllStackTraces().get(Thread.currentThread());
-        for (StackTraceElement e : trace) {
-            System.out.println(e.toString());
-        }
     }
 
     @Override

@@ -5,11 +5,11 @@
  */
 package zbottestplugin.oldshit;
 
-import org.bukkit.Material;
+import zedly.zbot.Material;
 import zbottestplugin.InventoryUtil;
 import zbottestplugin.Storage;
 import zedly.zbot.environment.Block;
-import zedly.zbot.environment.BlockFace;
+import zedly.zbot.BlockFace;
 
 /**
  *
@@ -32,7 +32,7 @@ public class TaskFloor extends Thread {
         try {
             while (!finished) {
                 while (!InventoryUtil.findAndSelect((is) -> {
-                    return is.getType() == Material.STONE && is.getData() == 0;
+                    return is.getType() == Material.STONE;
                 })) {
                     Storage.self.sneak(true);
                     ai.tick(5);
