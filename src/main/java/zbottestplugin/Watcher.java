@@ -49,26 +49,7 @@ public class Watcher implements Listener {
 
     public Watcher() {
         resolveLinks = Storage.plugin.getConfig().getBoolean("resolveLinks", false);
-        switch (Storage.self.getServerConnection().getUsername()) {
-            case "Donald_Trump__":
-                cp = Pattern.compile("^don (.+)");
-                break;
-            case "Mike_Pence__":
-                cp = Pattern.compile("^mike (.+)");
-                break;
-            case "SayakaMiki_":
-                cp = Pattern.compile("^sm (.+)");
-                break;
-            case "Brainibot":
-                cp = Pattern.compile("^bb (.+)");
-                break;
-            case "Swibbers":
-                cp = Pattern.compile("^sw (.+)");
-                break;
-            default:
-                cp = Pattern.compile("^zb (.+)");
-                break;
-        }
+        cp = Pattern.compile("^" + ZBotTestPlugin.config.getString("prefix", "zb") + " (.+)");
         if (Storage.self.getServerConnection().getIp().equals("85.131.153.100")
                 || Storage.self.getServerConnection().getIp().equals("127.0.0.1")
                 || Storage.self.getServerConnection().getIp().equals("155.254.35.239")) {
@@ -216,11 +197,11 @@ public class Watcher implements Listener {
             return null;
         }
     }
-    
+
     @EventHandler
     public void onWindowOpenFinish(WindowOpenFinishEvent evt) {
         Inventory inv = evt.getInventory();
-        if(inv instanceof FurnaceInventory) {
+        if (inv instanceof FurnaceInventory) {
             FurnaceInventory fi = (FurnaceInventory) inv;
             Storage.self.sendChat("Opened furnace. Flame " + fi.getRemainingBurnTime() + "/" + fi.getMaxBurnTime() + " Arrow " + fi.getProgress() + "/" + fi.getMaxProgress());
         }

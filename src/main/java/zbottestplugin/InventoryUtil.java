@@ -54,12 +54,23 @@ public class InventoryUtil {
         return findAndSelect((i) -> i.getType() == mat && i.getAmount() == amount);
     }
 
-    public static int count(Material mat) {
+    public static int count(Material mat, boolean testStatic, boolean testExternal) {
         int count = 0;
-        for (int i = 9; i <= 44; i++) {
-            ItemStack is = Storage.self.getInventory().getSlot(i);
-            if (is != null && is.getType() == mat) {
-                count += is.getAmount();
+        int staticOffset = Storage.self.getInventory().getStaticOffset();
+        if (testExternal) {
+            for (int i = 0; i <= staticOffset; i++) {
+                ItemStack is = Storage.self.getInventory().getSlot(i);
+                if (is != null && is.getType() == mat) {
+                    count += is.getAmount();
+                }
+            }
+        }
+        if (testStatic) {
+            for (int i = staticOffset; i < staticOffset + 36; i++) {
+                ItemStack is = Storage.self.getInventory().getSlot(i);
+                if (is != null && is.getType() == mat) {
+                    count += is.getAmount();
+                }
             }
         }
         return count;
@@ -81,5 +92,27 @@ public class InventoryUtil {
             }
         }
         return -1;
+    }
+    
+    public static int countFreeStorageSlots(boolean testStatic, boolean testExternal) {
+        int count = 0;
+        int staticOffset = Storage.self.getInventory().getStaticOffset();
+        if (testExternal) {
+            for (int i = 0; i <= staticOffset; i++) {
+                ItemStack is = Storage.self.getInventory().getSlot(i);
+                if (is == null) {
+                    count += 1;
+                }
+            }
+        }
+        if (testStatic) {
+            for (int i = staticOffset; i < staticOffset + 36; i++) {
+                ItemStack is = Storage.self.getInventory().getSlot(i);
+                if (is == null) {
+                    count += 1;
+                }
+            }
+        }
+        return count;
     }
 }

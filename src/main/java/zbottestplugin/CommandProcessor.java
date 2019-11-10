@@ -21,6 +21,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.UUID;
 import net.minecraft.server.NBTBase;
 import net.minecraft.server.NBTTagCompound;
 import net.minecraft.server.NBTTagList;
@@ -36,10 +37,12 @@ import zedly.zbot.environment.Block;
 import zedly.zbot.Material;
 import zbottestplugin.enchantengine2.EnchantEngine;
 import zbottestplugin.enchantengine2.LibraryLocation;
+import zbottestplugin.enchantengine2.TaskBuyLapis;
 import zbottestplugin.enchantengine2.TaskLookUpOneSlot;
 import zbottestplugin.enchantengine2.TaskPigCamper;
 import zbottestplugin.enchantengine2.TaskRetrieveOneItem;
 import zbottestplugin.enchantengine2.TaskScanLibrary;
+import zbottestplugin.enchantengine2.TaskSellIron;
 import zbottestplugin.enchantengine2.TaskStoreBooks;
 import zedly.zbot.entity.FallingBlock;
 import zedly.zbot.entity.Item;
@@ -48,8 +51,12 @@ import zedly.zbot.entity.Sheep;
 import zedly.zbot.entity.Tameable;
 import zedly.zbot.entity.Unknown;
 import zedly.zbot.BlockFace;
+import zedly.zbot.entity.Monster;
+import zedly.zbot.entity.ZombieVillager;
 import zedly.zbot.inventory.FurnaceInventory;
 import zedly.zbot.inventory.Inventory;
+import zedly.zbot.inventory.Trade;
+import zedly.zbot.inventory.VillagerInventory;
 
 /**
  *
@@ -108,7 +115,7 @@ public class CommandProcessor {
                 }
             case "query":
                 if (args.length == 1) {
-                    respond(respondTo, "Shop for enchanted books! /msg Sayaka query fire_aspect-2 unbreaking-3");
+                    respond(respondTo, "Shop for enchanted books! /msg " + Storage.self.getName() + " query fire_aspect-2 unbreaking-3");
                     break;
                 }
                 int results = EnchantEngine.queryEnchantment(command.substring(command.indexOf(" ") + 1));
@@ -118,25 +125,27 @@ public class CommandProcessor {
                 }
                 int absoluteIndex = EnchantEngine.getQueryResult(0);
                 int estPrice = EnchantEngine.getPriceEstimate(absoluteIndex);
-                respond(respondTo, "" + results + " listings starting at $" + (estPrice / 100) + "." + (estPrice % 100) + "! /msg Sayaka result <n> to view");
+                String enchantString = EnchantEngine.getEnchantString(absoluteIndex);
+                respond(respondTo, "$" + (estPrice / 100) + "." + (estPrice % 100) + ": " + enchantString + " (1/" + (results) + ": result <n>)");
                 break;
             case "result":
                 if (args.length != 2 || !args[1].matches("\\d+")) {
-                    respond(respondTo, "See results of your query. /msg Sayaka result <n>");
+                    respond(respondTo, "result <n>: Browse search results");
                     break;
                 }
+                results = EnchantEngine.getNumResults();
                 int resultIndex = Integer.parseInt(args[1]) - 1;
                 if (EnchantEngine.getQueryResult(resultIndex) == -1) {
-                    respond(respondTo, "Invalid result number! Use 1-" + EnchantEngine.getResultNumber());
+                    respond(respondTo, "Invalid result number! Use 1-" + EnchantEngine.getNumResults());
                 } else {
                     absoluteIndex = EnchantEngine.getQueryResult(resultIndex);
                     String itemString = EnchantEngine.getEnchantString(absoluteIndex);
                     estPrice = EnchantEngine.getPriceEstimate(absoluteIndex);
-                    respond(respondTo, "$" + (estPrice / 100) + "." + (estPrice % 100) + ", Item " + absoluteIndex + ": [" + itemString + "]");
+                    respond(respondTo, "$" + (estPrice / 100) + "." + (estPrice % 100) + ": " + itemString + " (" + (resultIndex + 1) + "/" + (results) + ": result <n>)");
                 }
                 break;
         }
-        if (!player.equals("brainiac94") && !player.equals("Veresen") && !player.equals("beddong") && !player.equals("Apple")) {
+        if (!ZBotTestPlugin.admins.contains(player)) {
             return;
         }
         switch (args[0]) {
@@ -184,14 +193,14 @@ public class CommandProcessor {
             case "ad":
                 String adItem = EnchantEngine.adItems[Storage.rnd.nextInt(EnchantEngine.adItems.length)];
                 int results = EnchantEngine.queryEnchantment(adItem);
-                if(results == 0) {
+                if (results == 0) {
                     respond(respondTo, "No listings available for " + adItem);
                     break;
                 }
-                int resultNumber = EnchantEngine.getResultNumber();
+                int resultNumber = EnchantEngine.getNumResults();
                 int cheapestItem = EnchantEngine.getQueryResult(0);
                 int price = EnchantEngine.getPriceEstimate(cheapestItem);
-                Storage.self.sendChat("Get one of " + resultNumber + " " + adItem + " books starting at $" + (price / 100) + "." + (price % 100) + "! /msg Sayaka query " + adItem);
+                Storage.self.sendChat("Get one of " + resultNumber + " " + adItem + " books starting at $" + (price / 100) + "." + (price % 100) + "! /msg " + Storage.self.getName() + " query " + adItem);
                 break;
             case "entity":
                 Entity ent = null;
@@ -256,7 +265,7 @@ public class CommandProcessor {
                     block = Storage.self.getEnvironment().getBlockAt(ent.getLocation());
                 }
                 respond(respondTo, block.toString());
-                if(block.hasTile()) {
+                if (block.hasTile()) {
                     respond(respondTo, "Tile: " + block.getTile());
                 }
                 break;
@@ -311,8 +320,20 @@ public class CommandProcessor {
                     respond(respondTo, "Stop the roaming process first");
                     return;
                 }
-                Location loc;
-                if (args.length >= 4) {
+                Location loc = null;
+
+                if (args.length == 2 && args[1].equals("me")) {
+                    UUID uuid = Storage.self.getEnvironment().getUUIDByPlayerName(player);
+                    for (Entity e : Storage.self.getEnvironment().getEntities()) {
+                        if (e instanceof Player && ((Player) e).getUUID().equals(uuid)) {
+                            loc = e.getLocation();
+                        }
+                    }
+                    if (loc == null) {
+                        respond(respondTo, "I can't see you!");
+                        return;
+                    }
+                } else if (args.length >= 4) {
                     double x = Double.parseDouble(args[1]);
                     double y = Double.parseDouble(args[2]);
                     double z = Double.parseDouble(args[3]);
@@ -408,6 +429,9 @@ public class CommandProcessor {
                 }
                 break;
             case "icl":
+                if (args.length == 3) {
+                    Storage.self.getInventory().click(Integer.parseInt(args[1]), Integer.parseInt(args[2]), 0);
+                }
                 if (args.length == 2) {
                     Storage.self.getInventory().click(Integer.parseInt(args[1]), 0, 0);
                 }
@@ -659,7 +683,11 @@ public class CommandProcessor {
                 new TaskStoreBooks().start();
                 break;
             case "fetchlib":
-                absoluteSlot = Integer.parseInt(args[1]);
+                if (args.length == 1) {
+                    absoluteSlot = EnchantEngine.getLastQueryIndex();
+                } else {
+                    absoluteSlot = Integer.parseInt(args[1]);
+                }
                 new TaskRetrieveOneItem(absoluteSlot).start();
                 break;
             case "floor":
@@ -679,6 +707,42 @@ public class CommandProcessor {
                     Storage.self.cancelTask(Storage.zombieTaskId);
                     Storage.zombieTaskId = -1;
                 }
+                break;
+            case "heal":
+                int zombieCount = 0;
+                for (Entity e : Storage.self.getEnvironment().getEntities()) {
+                    if (e instanceof ZombieVillager) {
+                        zombieCount++;
+                        Storage.self.interactWithEntity(e, false);
+                    }
+                }
+                Storage.self.sendChat("Healed " + zombieCount + " zombie villagers");
+                break;
+            case "list_trades":
+                Inventory inv = Storage.self.getInventory();
+                if (!(inv instanceof VillagerInventory)) {
+                    Storage.self.sendChat("Error: Inventory is type " + inv.getClass());
+                    break;
+                }
+                VillagerInventory vInv = (VillagerInventory) inv;
+                for (int i = 0; i < vInv.getNumTrades(); i++) {
+                    Trade trade = vInv.getTrade(i);
+                    Storage.self.sendChat("#" + i + ": " + (trade.getInput1().getAmount() + trade.getSpecialPrice()) + "x" + trade.getInput1().getType()
+                            + "->" + trade.getOutput().getAmount() + "x" + trade.getOutput().getType());
+                }
+                break;
+            case "select_trade":
+                inv = Storage.self.getInventory();
+                if (!(inv instanceof VillagerInventory)) {
+                    Storage.self.sendChat("Error: Inventory is type " + inv.getClass());
+                    break;
+                }
+                vInv = (VillagerInventory) inv;
+                int selectTrade = Integer.parseInt(args[1]);
+                if (selectTrade > vInv.getNumTrades()) {
+                    Storage.self.sendChat("Error: Select 0-" + (vInv.getNumTrades() - 1));
+                }
+                vInv.selectTrade(selectTrade);
                 break;
             case "welcome":
                 if (args.length >= 2) {
@@ -715,7 +779,7 @@ public class CommandProcessor {
                 Storage.self.closeWindow();
                 break;
             case "window":
-                Inventory inv = Storage.self.getInventory();
+                inv = Storage.self.getInventory();
                 if (inv instanceof FurnaceInventory) {
                     FurnaceInventory fi = (FurnaceInventory) inv;
                     Storage.self.sendChat("Furnace. Flame " + fi.getRemainingBurnTime() + "/" + fi.getMaxBurnTime() + " Arrow " + fi.getProgress() + "/" + fi.getMaxProgress());
@@ -724,6 +788,12 @@ public class CommandProcessor {
             case "camp":
             case "camp_pigs":
                 TaskPigCamper.instance().start();
+                break;
+            case "sell_iron":
+                new TaskSellIron().start();
+                break;
+            case "buy_lapis":
+                new TaskBuyLapis().start();
                 break;
             case "exit":
                 Storage.self.shutdown();

@@ -29,8 +29,8 @@ public class TaskPigCamper extends Task {
     private static final Location HOME_LOC = new Location(295.5, 137, -8701.5);
     private static final Location ENCH_LOC = new Location(295.5, 137, -8698.5);
     private static final Location ENCH_TABLE_LOC = new Location(295, 137, -8698);
-    private static final Location BOOK_TESSERACT_LOC = new Location(296, 138, -8702);
-    private static final Location LAPIS_TESSERACT_LOC = new Location(294, 138, -8702);
+    private static final Location BOOK_TESSERACT_LOC = new Location(295, 139, -8699);
+    private static final Location LAPIS_TESSERACT_LOC = new Location(295, 140, -8699);
     private static final Location TRASH_CHEST_LOC = new Location(297, 137, -8701);
     private static final Location OUTPUT_CHEST_LOC = new Location(293, 137, -8699);
     private static final HashSet<Material> TRASH_MATERIALS = new HashSet<>();
@@ -110,18 +110,25 @@ public class TaskPigCamper extends Task {
 
     private boolean getMaterials() throws InterruptedException {
         ai.moveTo(ENCH_LOC);
-        /*
-        Storage.self.sneak(true);
-        Storage.self.clickBlock(BOOK_TESSERACT_LOC);
+        if (InventoryUtil.count(Material.LAPIS_LAZULI, true, false) < 10) {
+            Storage.self.clickBlock(LAPIS_TESSERACT_LOC);
+            ai.tick(10);
+        }
+        if (InventoryUtil.count(Material.BOOK, true, false) < 10) {
+            Storage.self.clickBlock(BOOK_TESSERACT_LOC);
+            ai.tick(10);
+        }
+        int bookSlot = InventoryUtil.findItem((i) -> i != null && i.getType() == Material.BOOK);
+        int lapisSlot = InventoryUtil.findItem((i) -> i != null && i.getType() == Material.LAPIS_LAZULI);
+        ai.clickSlot(lapisSlot, 0, 0); // Collect items onto this stack
+        ai.clickSlot(lapisSlot, 6, 0); // Collect items onto this stack
         ai.tick();
-        Storage.self.clickBlock(LAPIS_TESSERACT_LOC);
+        ai.clickSlot(lapisSlot, 0, 0); // Collect items onto this stack
         ai.tick();
-        Storage.self.clickBlock(LAPIS_TESSERACT_LOC);
+        ai.clickSlot(bookSlot, 0, 0); // Collect items onto this stack
+        ai.clickSlot(bookSlot, 6, 0); // Collect items onto this stack
         ai.tick();
-        Storage.self.clickBlock(LAPIS_TESSERACT_LOC);
-        ai.tick();
-        Storage.self.sneak(false);
-         */
+        ai.clickSlot(bookSlot, 0, 0); // Collect items onto this stack
         return true;
     }
 
@@ -194,17 +201,10 @@ public class TaskPigCamper extends Task {
 
         ai.tick();
 
-        // Book out of ench table, discard residue
-        ai.clickSlot(0, 0, 0);
-        ai.clickSlot(freeSlot, 0, 0);
-        ai.clickSlot(-999, 0, 0);
-
-        // Lapis out of ench table, discard residue
-        ai.clickSlot(1, 0, 0);
-        ai.clickSlot(lapisSlot, 0, 0);
-        ai.clickSlot(-999, 0, 0);
-
-        freeSlot -= Storage.self.getInventory().getStaticOffset();
+        // Book out of ench table
+        ai.withdrawSlot(0);
+        // Lapis out of ench table
+        ai.withdrawSlot(1);
 
         ai.closeContainer();
         return true;

@@ -27,8 +27,8 @@ public class ScrambleWatcher implements Listener {
     private static final File scrambleDictionaryFile = new File(Storage.plugin.getDataFolder(), "scramble.txt");
     private static final ArrayList<String> scrambleWords = new ArrayList<>();
     private String unknownScramble = null;
-    private final Pattern scramblePattern = Pattern.compile("\"hoverEvent\":\\{\"action\":\"show_text\",\"value\":\\[\\{\"color\":\"white\",\"text\":\"(.+?)\"\\}\\]\\}");
-    private final Pattern scrambleSolvedPattern = Pattern.compile("\\{\"color\":\"white\",\"text\":\"(.+?) \"\\}");
+    private final Pattern scramblePattern = Pattern.compile("\"hoverEvent\":\\{\"action\":\"show_text\",\"value\":\\{\"color\":\"yellow\",\"text\":\"(.+?)\"\\}\\}");
+    private final Pattern scrambleSolvedPattern = Pattern.compile("\\{\"color\":\"yellow\",\"text\":\"(.+?) \"\\}");
 
     public ScrambleWatcher() {
         loadScrambleDictionary();
@@ -37,7 +37,7 @@ public class ScrambleWatcher implements Listener {
     @EventHandler
     public void onChat(ChatEvent evt) {
         //System.out.println(evt.getRawMessage());
-        if (evt.getRawMessage().contains("{\"color\":\"aqua\",\"text\":\"Hover for the word to unscramble!\"}")) {
+        if (evt.getRawMessage().contains("\u00a7bHover for the word to unscramble!")) {
             boolean answerScramble = Storage.rnd.nextDouble() < ZBotTestPlugin.config.getDouble("scrambleChance", 0);
             Matcher m = scramblePattern.matcher(evt.getRawMessage());
             if (m.find()) {
@@ -45,7 +45,7 @@ public class ScrambleWatcher implements Listener {
                 for (String s : scrambleWords) {
                     if (StringUtil.isAnagram(anagram, s)) {
                         if (answerScramble) {
-                            Storage.self.sendChat(s);
+                            Storage.self.sendChat("//r " + s);
                         }
                         System.out.println("Scramble Challenge: " + anagram + "  Solution: " + s);
                         return;

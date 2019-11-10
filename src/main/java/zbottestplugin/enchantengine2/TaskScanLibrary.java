@@ -45,7 +45,7 @@ public class TaskScanLibrary extends Task {
 
                 System.out.println("seenbooks: " + seenBooks + ". closing chest " + EnchantEngine.friendlyIndex(ll));
                 Storage.self.closeWindow();
-                ai.tick(10);
+                ai.tick();
                 if (chestEmpty) {
                     break;
                 }

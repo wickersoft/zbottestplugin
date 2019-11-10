@@ -47,7 +47,7 @@ public class TaskStoreBooks extends Task {
 
     private boolean loadUp() throws InterruptedException {
         while (tryGrabMoreItems()) {
-            if (inboxChest++ == 32) {
+            if (inboxChest++ == 31) {
                 return true;
             }
         }

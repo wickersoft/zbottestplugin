@@ -15,6 +15,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import zedly.zbot.YamlConfiguration;
 import zedly.zbot.self.Self;
 import zedly.zbot.plugin.ZBotPlugin;
@@ -25,6 +26,7 @@ import zedly.zbot.plugin.ZBotPlugin;
  */
 public class ZBotTestPlugin extends ZBotPlugin {
 
+    public static final List<String> admins = new ArrayList<>();
     private static final ArrayList<String> resourceFileNames = new ArrayList<>();
     public static YamlConfiguration config;
 
@@ -46,9 +48,15 @@ public class ZBotTestPlugin extends ZBotPlugin {
             System.out.println("Enabling Follow watcher");
             self.registerEvents(Storage.follower);
         }
+
+        admins.clear();
+        for (String item : config.getList("admins", String.class)) {
+            admins.add(item);
+        }
+
         self.registerEvents(Storage.recorder);
         self.registerEvents(Storage.watcher);
-        //self.registerEvents(new ScrambleWatcher());
+        self.registerEvents(new ScrambleWatcher());
     }
 
     @Override
@@ -56,6 +64,13 @@ public class ZBotTestPlugin extends ZBotPlugin {
         System.out.println("Joined! My EID: " + Storage.self.getEntityId());
         Storage.self.scheduleSyncRepeatingTask(this, Storage.synch, 50, 50);
         Storage.self.scheduleSyncRepeatingTask(this, Storage.follower, 15000, 15000);
+
+        if (config.getBoolean("antiafk", false)) {
+            Storage.self.scheduleSyncRepeatingTask(this, () -> {
+                Storage.self.swingArm(true);
+            }, 60000, 60000);
+        }
+
         if (config.getBoolean("roam", false)) {
             System.out.println("Enabling Roamer");
             Storage.self.scheduleSyncRepeatingTask(this, Storage.roamer, 150, 150);
@@ -71,7 +86,6 @@ public class ZBotTestPlugin extends ZBotPlugin {
         }
     }
 
-    @Override
     public void onQuit() {
         System.out.println("Quit!");
     }
