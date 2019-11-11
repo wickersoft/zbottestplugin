@@ -37,6 +37,7 @@ import zedly.zbot.environment.Block;
 import zedly.zbot.Material;
 import zbottestplugin.enchantengine2.EnchantEngine;
 import zbottestplugin.enchantengine2.LibraryLocation;
+import zbottestplugin.enchantengine2.TaskBuyBooks;
 import zbottestplugin.enchantengine2.TaskBuyLapis;
 import zbottestplugin.enchantengine2.TaskLookUpOneSlot;
 import zbottestplugin.enchantengine2.TaskPigCamper;
@@ -684,7 +685,7 @@ public class CommandProcessor {
                 break;
             case "fetchlib":
                 if (args.length == 1) {
-                    absoluteSlot = EnchantEngine.getLastQueryIndex();
+                    absoluteSlot = EnchantEngine.getQueryResult(EnchantEngine.getLastQueryIndex());
                 } else {
                     absoluteSlot = Integer.parseInt(args[1]);
                 }
@@ -794,6 +795,9 @@ public class CommandProcessor {
                 break;
             case "buy_lapis":
                 new TaskBuyLapis().start();
+                break;
+            case "buy_books":
+                new TaskBuyBooks().start();
                 break;
             case "exit":
                 Storage.self.shutdown();
