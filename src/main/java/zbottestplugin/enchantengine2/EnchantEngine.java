@@ -267,6 +267,13 @@ public class EnchantEngine {
     public static String friendlyIndex(int absoluteIndex) {
         return friendlyIndex(new LibraryLocation(absoluteIndex));
     }
+    
+    public static int getNumIndexedItems() {
+        int i;
+        for (i = 0; i < ENCHANT_DATABASE.length && ENCHANT_DATABASE[i] != null; i++) {
+        }
+        return i;
+    }
 
     private static final String[] zenchants = {"Anthropomorphism", "Arborist", "Bind", "Blaze's Curse",
         "Blizzard", "Bounce", "Burst", "Combustion", "Conversion", "Decapitation",
