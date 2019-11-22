@@ -13,6 +13,7 @@ import zbottestplugin.task.Task;
 import zedly.zbot.BlockFace;
 import zedly.zbot.Location;
 import zedly.zbot.Material;
+import zedly.zbot.entity.Entity;
 import zedly.zbot.entity.Villager;
 import zedly.zbot.event.WindowOpenFinishEvent;
 import zedly.zbot.inventory.Trade;
@@ -22,24 +23,32 @@ import zedly.zbot.inventory.VillagerInventory;
  *
  * @author Dennis
  */
-public class TaskBuyBooks extends Task {
+public class TaskBuyBookShelves extends Task {
 
-    private static final Location BOOK_CHEST_LOC = new Location(185, 143, -8762).centerHorizontally();
-    private static final Location BOOK_WALK_LOC = new Location(183, 143, -8762).centerHorizontally();
-    private static final Location BOOK_TRADE_LOC = new Location(182, 143, -8758).centerHorizontally();
+    private static final Location BOOKSHELF_TRADE_LOC = new Location(167, 143, -8765).centerHorizontally();
+
+    private static final Location BOOKSHELF_WALK_LOC = new Location(176, 143, -8774).centerHorizontally();
+    private static final Location BOOKSHELF_TESSERACT_LOC = new Location(176, 144, -8775).centerHorizontally();
+    private static final Location BOOKSHELF_CHEST_LOC = new Location(176, 145, -8776).centerHorizontally();
+
     private static final Location EMERALD_WALK_LOC = new Location(175, 143, -8774).centerHorizontally();
+    private static final Location EMERALD_TESSERACT_LOC = new Location(175, 144, -8775).centerHorizontally();
     private static final Location EMERALD_CHEST_LOC = new Location(175, 145, -8776).centerHorizontally();
 
-    public TaskBuyBooks() {
+    private static final Location BOOK_WALK_LOC = new Location(174, 143, -8774).centerHorizontally();
+    private static final Location BOOK_TESSERACT_LOC = new Location(174, 144, -8775).centerHorizontally();
+    private static final Location BOOK_CHEST_LOC = new Location(174, 145, -8776).centerHorizontally();
+
+    public TaskBuyBookShelves() {
         super(100);
     }
 
     public void run() {
         try {
-            ai.moveTo(BOOK_TRADE_LOC);
+            ai.moveTo(BOOKSHELF_TRADE_LOC);
             while (true) {
-                if (InventoryUtil.countFreeStorageSlots(true, false) == 0
-                        || InventoryUtil.count(Material.EMERALD, true, false) == 0) {
+                if (InventoryUtil.count(Material.EMERALD, true, false) < 32
+                        || InventoryUtil.countFreeStorageSlots(true, false) < 2) {
                     restock();
                 } else {
                     attemptTrade();
@@ -51,18 +60,34 @@ public class TaskBuyBooks extends Task {
         }
     }
 
-    private void restock() throws InterruptedException {
-        ai.moveTo(BOOK_WALK_LOC); // Move Emeralds to Tesseract
-        ai.openContainer(BOOK_CHEST_LOC);
-        fillChest(Material.BOOKSHELF);
-        ai.closeContainer();
+    private void restock() throws InterruptedException {        
+        if (!ai.moveTo(BOOKSHELF_WALK_LOC)) {
+            Storage.self.sendChat("aaaaah i'm blind konni brain kill me pls");
+            ai.tick(6000);// Move Emeralds to Chest
+            return;
+        }
+        
+        depositToTesseract(BOOKSHELF_TESSERACT_LOC);
 
-        ai.moveTo(EMERALD_WALK_LOC); // Move Iron to Chest
+        ai.moveTo(EMERALD_WALK_LOC); // Move Emeralds to Tesseract
         ai.openContainer(EMERALD_CHEST_LOC);
-        emptyChest(); // Not the same as the other tasks. This keeps 66% free space to accommodate bookshelves
+        emptyChest();
         ai.closeContainer();
+        depositToTesseract(EMERALD_TESSERACT_LOC);
 
-        ai.moveTo(BOOK_TRADE_LOC);
+        ai.moveTo(BOOK_WALK_LOC); // Move Books to Chest
+        ai.openContainer(BOOK_CHEST_LOC);
+        while (fillChest(Material.BOOK)) {
+            withdrawFromTesseract(BOOK_TESSERACT_LOC, 4);
+            ai.tick(3);
+        }
+        ai.closeContainer();
+        depositToTesseract(BOOK_TESSERACT_LOC);
+
+        ai.moveTo(EMERALD_WALK_LOC); 
+        withdrawFromTesseract(EMERALD_TESSERACT_LOC, InventoryUtil.countFreeStorageSlots(true, false) / 3);
+
+        ai.moveTo(BOOKSHELF_TRADE_LOC);
     }
 
     private void attemptTrade() throws InterruptedException {
@@ -102,7 +127,7 @@ public class TaskBuyBooks extends Task {
 
     private boolean emptyChest() throws InterruptedException {
         for (int i = 0; i < Storage.self.getInventory().getStaticOffset(); i++) {
-            if (32 * InventoryUtil.countFreeStorageSlots(true, false) <= InventoryUtil.count(Material.EMERALD, true, false)) {
+            if (InventoryUtil.findFreeStorageSlot(true) == -1) {
                 return true;
             }
             if (Storage.self.getInventory().getSlot(i) != null) {

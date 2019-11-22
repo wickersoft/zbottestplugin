@@ -37,12 +37,13 @@ import zedly.zbot.environment.Block;
 import zedly.zbot.Material;
 import zbottestplugin.enchantengine2.EnchantEngine;
 import zbottestplugin.enchantengine2.LibraryLocation;
-import zbottestplugin.enchantengine2.TaskBuyBooks;
+import zbottestplugin.enchantengine2.TaskBuyBookShelves;
 import zbottestplugin.enchantengine2.TaskBuyLapis;
 import zbottestplugin.enchantengine2.TaskLookUpOneSlot;
 import zbottestplugin.enchantengine2.TaskPigCamper;
 import zbottestplugin.enchantengine2.TaskRetrieveOneItem;
 import zbottestplugin.enchantengine2.TaskScanLibrary;
+import zbottestplugin.enchantengine2.TaskSellBooks;
 import zbottestplugin.enchantengine2.TaskSellIron;
 import zbottestplugin.enchantengine2.TaskStoreBooks;
 import zedly.zbot.entity.FallingBlock;
@@ -609,6 +610,7 @@ public class CommandProcessor {
             case "nbt":
                 ItemStack is = Storage.self.getInventory().getItemInHand();
                 NBTBase k = is.getNbt();
+                Storage.self.sendChat(k.toString());
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 DataOutputStream dos = new DataOutputStream(bos);
                 k.write(dos);
@@ -796,8 +798,11 @@ public class CommandProcessor {
             case "buy_lapis":
                 new TaskBuyLapis().start();
                 break;
-            case "buy_books":
-                new TaskBuyBooks().start();
+            case "sell_books":
+                new TaskSellBooks().start();
+                break;
+            case "buy_bookshelves":
+                new TaskBuyBookShelves().start();
                 break;
             case "exit":
                 Storage.self.shutdown();

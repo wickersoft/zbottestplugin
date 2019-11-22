@@ -8,6 +8,8 @@ package zbottestplugin.enchantengine2;
 import zbottestplugin.enchantengine.*;
 import java.util.ConcurrentModificationException;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Map.Entry;
 import zbottestplugin.InventoryUtil;
 import zbottestplugin.Storage;
 import zbottestplugin.task.Task;
@@ -288,6 +290,14 @@ public class TaskPigCamper extends Task {
             }
         } catch (ConcurrentModificationException ex) {
             System.err.println("CME in getEntities() :( :(");
+            System.err.println("Thread dump:");
+            Map<Thread, StackTraceElement[]> dump = Thread.getAllStackTraces();
+            for(Entry<Thread, StackTraceElement[]> entry : dump.entrySet()) {
+                System.out.println("Thread " + entry.getKey() + ": ");
+                for(StackTraceElement element : entry.getValue()) {
+                    System.out.println("  " + element);
+                }
+            }
         }
         return null;
     }

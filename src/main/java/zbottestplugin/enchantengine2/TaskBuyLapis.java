@@ -39,6 +39,10 @@ public class TaskBuyLapis extends Task {
     private static final Location IRON_WALK_LOC = new Location(177, 143, -8774).centerHorizontally();
     private static final Location IRON_TESSERACT_LOC = new Location(177, 144, -8775).centerHorizontally();
     private static final Location IRON_CHEST_LOC = new Location(177, 145, -8776).centerHorizontally();
+    
+    private static final Location BOOK_WALK_LOC = new Location(174, 143, -8774).centerHorizontally();
+    private static final Location BOOK_TESSERACT_LOC = new Location(174, 144, -8775).centerHorizontally();
+    private static final Location BOOK_CHEST_LOC = new Location(174, 145, -8776).centerHorizontally();
 
     public TaskBuyLapis() {
         super(100);
@@ -46,6 +50,7 @@ public class TaskBuyLapis extends Task {
 
     public void run() {
         try {
+            ai.moveTo(LAPIS_TRADE_LOC);
             while (true) {
                 if (InventoryUtil.count(Material.EMERALD, true, false) < 32) {
                     restock();
@@ -69,16 +74,15 @@ public class TaskBuyLapis extends Task {
         ai.closeContainer();
         depositToTesseract(EMERALD_TESSERACT_LOC);
 
-        ai.moveTo(IRON_WALK_LOC); // Move Iron to Chest
-        ai.openContainer(IRON_CHEST_LOC);
-        while (fillChest(Material.IRON_INGOT)) {
-            withdrawFromTesseract(IRON_TESSERACT_LOC, 4);
+        ai.moveTo(BOOK_WALK_LOC); // Move Iron to Chest
+        ai.openContainer(BOOK_CHEST_LOC);
+        while (fillChest(Material.BOOK)) {
+            withdrawFromTesseract(BOOK_TESSERACT_LOC, 4);
             ai.tick(3);
         }
         ai.closeContainer();
-        depositToTesseract(IRON_TESSERACT_LOC);
 
-        ai.moveTo(EMERALD_WALK_LOC); // Move Iron to Chest
+        ai.moveTo(EMERALD_WALK_LOC);
         withdrawFromTesseract(EMERALD_TESSERACT_LOC, InventoryUtil.countFreeStorageSlots(true, false) - 2);
 
         ai.moveTo(LAPIS_TRADE_LOC);

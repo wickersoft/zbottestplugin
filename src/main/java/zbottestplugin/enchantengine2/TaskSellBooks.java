@@ -23,32 +23,27 @@ import zedly.zbot.inventory.VillagerInventory;
  *
  * @author Dennis
  */
-public class TaskSellIron extends Task {
+public class TaskSellBooks extends Task {
 
-    private static final Location IRON_TRADE_LOC = new Location(183, 143, -8774).centerHorizontally();
-    private static final Location LAPIS_TRADE_LOC = new Location(168, 143, -8773).centerHorizontally();
-
-    private static final Location LAPIS_WALK_LOC = new Location(173, 143, -8774).centerHorizontally();
-    private static final Location LAPIS_TESSERACT_LOC = new Location(173, 144, -8775).centerHorizontally();
-    private static final Location LAPIS_CHEST_LOC = new Location(173, 145, -8776).centerHorizontally();
+    private static final Location BOOK_TRADE_LOC = new Location(167, 143, -8758).centerHorizontally();
 
     private static final Location EMERALD_WALK_LOC = new Location(175, 143, -8774).centerHorizontally();
     private static final Location EMERALD_TESSERACT_LOC = new Location(175, 144, -8775).centerHorizontally();
     private static final Location EMERALD_CHEST_LOC = new Location(175, 145, -8776).centerHorizontally();
 
-    private static final Location IRON_WALK_LOC = new Location(177, 143, -8774).centerHorizontally();
-    private static final Location IRON_TESSERACT_LOC = new Location(177, 144, -8775).centerHorizontally();
-    private static final Location IRON_CHEST_LOC = new Location(177, 145, -8776).centerHorizontally();
+    private static final Location BOOK_WALK_LOC = new Location(174, 143, -8774).centerHorizontally();
+    private static final Location BOOK_TESSERACT_LOC = new Location(174, 144, -8775).centerHorizontally();
+    private static final Location BOOK_CHEST_LOC = new Location(174, 145, -8776).centerHorizontally();
 
-    public TaskSellIron() {
+    public TaskSellBooks() {
         super(100);
     }
 
     public void run() {
         try {
-            ai.moveTo(IRON_TRADE_LOC);
+            ai.moveTo(BOOK_TRADE_LOC);
             while (true) {
-                if (InventoryUtil.count(Material.IRON_INGOT, true, false) < 32) {
+                if (InventoryUtil.count(Material.BOOK, true, false) < 32) {
                     restock();
                 } else {
                     attemptTrade();
@@ -61,17 +56,22 @@ public class TaskSellIron extends Task {
     }
 
     private void restock() throws InterruptedException {
-        ai.moveTo(EMERALD_WALK_LOC); // Move Emeralds to Tesseract
+        if (!ai.moveTo(EMERALD_WALK_LOC)) {
+            Storage.self.sendChat("aaaaah i'm blind konni brain kill me pls");
+            ai.tick(6000);// Move Emeralds to Chest
+            return;
+        }
+
         ai.openContainer(EMERALD_CHEST_LOC);
         fillChest(Material.EMERALD);
         ai.closeContainer();
 
-        ai.moveTo(IRON_WALK_LOC); // Move Iron to Chest
-        ai.openContainer(IRON_CHEST_LOC);
+        ai.moveTo(BOOK_WALK_LOC); // Move Iron to Chest
+        ai.openContainer(BOOK_CHEST_LOC);
         emptyChest();
         ai.closeContainer();
 
-        ai.moveTo(IRON_TRADE_LOC);
+        ai.moveTo(BOOK_TRADE_LOC);
     }
 
     private void attemptTrade() throws InterruptedException {
@@ -98,7 +98,7 @@ public class TaskSellIron extends Task {
 
             for (int i = 0; i < vInv.getNumTrades(); i++) {
                 Trade trade = vInv.getTrade(i);
-                if (trade.isEnabled() && trade.getInput1().getType() == Material.IRON_INGOT && trade.getOutput().getType() == Material.EMERALD) {
+                if (trade.isEnabled() && trade.getInput1().getType() == Material.BOOK && trade.getOutput().getType() == Material.EMERALD) {
                     vInv.selectTrade(i);
                     vInv.click(2, 1, 0); // Shift-click output into inventory
                     break;

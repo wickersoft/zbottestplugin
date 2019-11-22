@@ -5,6 +5,7 @@
  */
 package edu.kit.informatik;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import zedly.zbot.Location;
 
@@ -12,7 +13,7 @@ import zedly.zbot.Location;
  *
  * @author Dennis
  */
-public class GeometricPath {
+public class GeometricPath implements Iterable {
 
     private final GeometricPath origin;
     private final Location target;
@@ -113,5 +114,10 @@ public class GeometricPath {
             nodes.add(new Node(target));
             return nodes;
         }
+    }
+
+    @Override
+    public Iterator iterator() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
