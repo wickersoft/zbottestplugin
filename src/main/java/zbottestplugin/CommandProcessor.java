@@ -86,7 +86,7 @@ public class CommandProcessor {
                 respond(respondTo, "&aNyanCat Server on Facebook: &ehttps://www.facebook.com/groups/406113456101737/");
                 break;
             case "vote":
-                respond(respondTo, "&aVote for us: &ehttp://tinyurl.com/vote-for-nyan");
+                respond(respondTo, "&aVote for us: &ehttp://www.nyancat.de/vote");
                 break;
             case "discord":
                 respond(respondTo, "&aOfficial Discord Server: &ehttps://discord.gg/4Qm3wrZ");
