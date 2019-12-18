@@ -13,8 +13,10 @@ import zbottestplugin.task.Task;
 import zedly.zbot.BlockFace;
 import zedly.zbot.Location;
 import zedly.zbot.Material;
+import zedly.zbot.block.data.type.Switch;
 import zedly.zbot.entity.Entity;
 import zedly.zbot.entity.Villager;
+import zedly.zbot.environment.Block;
 import zedly.zbot.event.WindowOpenFinishEvent;
 import zedly.zbot.inventory.Trade;
 import zedly.zbot.inventory.VillagerInventory;
@@ -48,7 +50,7 @@ public class TaskBuyLapis extends Task {
         super(100);
     }
 
-    public void run() {
+    public void run() {        
         try {
             ai.moveTo(LAPIS_TRADE_LOC);
             while (true) {
