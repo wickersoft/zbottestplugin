@@ -69,7 +69,7 @@ public class Watcher implements Listener {
             return;
         }
 
-        if (evt.getMessage().matches("^Player .+ banned .+ for: .+")) {
+        if (evt.getMessage().matches("^Player .+ banned .+ for: .+") && Storage.plugin.getConfig().getBoolean("banReaction", false)) {
             Storage.self.sendChat(Storage.banMessages.get(Storage.rnd.nextInt(Storage.banMessages.size())));
             return;
         }
