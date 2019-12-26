@@ -344,15 +344,7 @@ public class CommandProcessor {
                     ent = Storage.self.getEnvironment().getEntityById(Storage.recorder.getEntityId());
                     loc = ent.getLocation().centerHorizontally();
                 }
-                GeometricPath path = AStar.getPath(loc);
-                if (path == null) {
-                    respond(respondTo, "Could not find a path to that location");
-                    return;
-                }
-                List<Node> nodes = path.getNodes();
-                //respond(respondTo, "Navigating along path of length " + nodes.size() + " (" + AStar.getRuntimeCounter() + " iterations)");
-                TaskNavigate tn = new TaskNavigate(nodes);
-                tn.identify(Storage.self.scheduleSyncRepeatingTask(Storage.plugin, tn, 250, 250));
+                new TaskAINavigate(loc).start();
                 break;
             case "sudo":
                 StringBuilder sb = new StringBuilder();

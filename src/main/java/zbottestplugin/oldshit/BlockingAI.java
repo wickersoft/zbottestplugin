@@ -65,6 +65,24 @@ public class BlockingAI implements Runnable {
         return true;
     }
 
+    public boolean navigateTo(Location target) throws InterruptedException {
+        List<Location> nodes;
+        while (Storage.self.getLocation().distanceSquareTo(target) > 1) {
+            Location oldLoc = Storage.self.getLocation();
+            GeometricPath path = AStar.getPath(target, true);
+            if (path == null) {
+                return false;
+            }
+            nodes = path.getLocations();
+            followPath(nodes);
+        }
+        Location oldLoc = Storage.self.getLocation();
+        nodes = new LinkedList<>();
+        nodes.add(target);
+        followPath(nodes);
+        return true;
+    }
+
     public void followPath(GeometricPath path) throws InterruptedException {
         followPath(path.getLocations());
     }

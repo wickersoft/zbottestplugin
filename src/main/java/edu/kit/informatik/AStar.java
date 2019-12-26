@@ -20,7 +20,7 @@ public class AStar {
 
     private static final HashSet<Integer> NONSOLID_BLOCKS;
     private static final HashSet<Integer> FORBIDDEN_BLOCKS;
-    private static final int MAX_PATH_WEIGHT = 1000;
+    private static final int MAX_PATH_WEIGHT = 100;
     private static final int MAX_DISTANCE = 100;
     private static PriorityQueue<GeometricPath> searchPerimeter;
     private static HashSet<Long> visited;
@@ -29,8 +29,12 @@ public class AStar {
     private static final int[][] RELATIVE_VECTORS = {
         {1, 0}, {0, 1}, {-1, 0}, {0, -1}
     };
-
+    
     public static final GeometricPath getPath(Location target) {
+        return getPath(target, false);
+    }
+
+    public static final GeometricPath getPath(Location target, boolean returnPartial) {
         runtimeCounter = 0;
         EuclideanHeuristic heuristic = new EuclideanHeuristic(target);
         searchPerimeter = new PriorityQueue<>(heuristic);
@@ -52,6 +56,9 @@ public class AStar {
             if (l.distanceTo(target) <= 1.05) {
                 return new GeometricPath(target, bestPath);
             } else if (bestPath.getLength() > MAX_PATH_WEIGHT) {
+                if(returnPartial) {
+                    return bestPath;
+                }
                 return null;
             }
             runtimeCounter++;
