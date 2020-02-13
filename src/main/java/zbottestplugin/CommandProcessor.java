@@ -25,6 +25,8 @@ import java.util.UUID;
 import net.minecraft.server.NBTBase;
 import net.minecraft.server.NBTTagCompound;
 import net.minecraft.server.NBTTagList;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import zbottestplugin.HTTP.HTTPResponse;
 import zedly.zbot.ClientSettings;
 import zedly.zbot.EntityType;
@@ -91,6 +93,32 @@ public class CommandProcessor {
             case "discord":
                 respond(respondTo, "&aOfficial Discord Server: &ehttps://discord.gg/4Qm3wrZ");
                 break;
+            case "stats":
+                HTTPResponse http = HTTP.https("https://view.inews.qq.com/g2/getOnsInfo?name=disease_h5", "UTF-8");
+                String s_json = new String(http.getContent());
+                JSONParser parser = new JSONParser();
+                JSONObject json = (JSONObject) parser.parse(s_json);
+                Object o = json.get("data");
+                if (!(o instanceof String)) {
+                    System.err.println("Unable to get stats right now! (1)");
+                    return;
+                }
+                String s_data = (String) o;
+                JSONParser dataParser = new JSONParser();
+                JSONObject dataJson = (JSONObject) dataParser.parse(s_data);
+                o = dataJson.get("chinaTotal");
+                if (!(o instanceof JSONObject)) {
+                    System.err.println("Unable to get stats right now! (2)");
+                    return;
+                }
+                JSONObject chinaTotal = (JSONObject) o;
+                
+                long confirmed = (long) (Long) chinaTotal.get("confirm");
+                long suspected = (long) (Long) chinaTotal.get("suspect");
+                long recovered = (long) (Long) chinaTotal.get("heal");
+                long deceased = (long) (Long) chinaTotal.get("dead");
+                respond(respondTo, "&cConfirmed: " + confirmed + " &eSuspected: " + suspected + " &aRecovered: " + recovered + " &7Deceased: " + deceased);
+                break;
             case "google":
                 if (args.length == 1) {
                     respond(respondTo, "google {query}");
@@ -98,7 +126,7 @@ public class CommandProcessor {
                 }
                 try {
                     int offset = 0;
-                    HTTPResponse http = HTTP.https("https://www.google.com/search?lr=lang_en&q=" + URLEncoder.encode(command.substring(7), "UTF-8"));
+                    http = HTTP.https("https://www.google.com/search?lr=lang_en&q=" + URLEncoder.encode(command.substring(7), "UTF-8"));
                     String html = new String(http.getContent());
                     String[] links = StringUtil.extractAll(html, "<div class=\"r\"><a href=\"", "\"");
                     if (links.length >= 1) {
