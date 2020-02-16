@@ -25,11 +25,13 @@ import zedly.zbot.util.Vector;
 public class TaskHeadFollow implements Listener, Runnable {
 
     private final Random rnd = new Random();
-    private final Location idleLocation = new Location(35.5, 70, 25.5);
+    private final Location idleLocation = new Location(Storage.plugin.getConfig().getInt("spawn.x", 0), 
+            Storage.plugin.getConfig().getInt("spawn.y", 64), 
+            Storage.plugin.getConfig().getInt("spawn.z", 0));
     private final int trackingDistance = 15;
+    private final boolean warpSpam;
     private int closestPlayerId = -1;
     private double closestPlayerDistance = Double.MAX_VALUE;
-    private final boolean warpSpam;
     
     public TaskHeadFollow(boolean warpSpam) {
         this.warpSpam = warpSpam;

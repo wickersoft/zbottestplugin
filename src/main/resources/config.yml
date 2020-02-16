@@ -1,24 +1,31 @@
-## YAML Template.
----
+resolveLinks: true
 defend: false
 roam: false
-
+spawn:
+  x: -25
+  y: 80
+  z: -39
 follow:
   enable: true
   spam: true
-  msgs:
-  - "The warps on the right are brand new and unexplored!"
-  - "If you're looking for a town, take a look at the warps on the left!"
-  - "Tell Derp to send me the Doctor's lines already!"
-  - "Click on one of the pictures to teleport to its destination!"
-  
+  msgs: ['&oCough', 'I''m cold...', 'Will you fly to New York with me?', 'I can''t wait to meet your friends!', 'Try the bat soup!', 'Nice healthy lungs you got there :3', Come a little closer!, 'I''m new, can you show me around please?']
 broadcast:
-  enable: true
+  enable: false
   delay: 900
-  msgs:
-  - "Got griefed? Report it to the admins using &6/ag&a!"
-  - "Help keep our world tidy! Report floating trees, raided deserts and abandoned buildings using &6/ls&a!"
-  - "Keep the world tidy! Report floating trees, raided deserts and abandoned buildings using &6/ls&a!"
-  - "Learn more about our server! http://naanpig.zohosites.com"
-  - "Meet up on our Discord channel! https://discord.gg/4Qm3wrZ"
-  - "If you like our server, &bvote for us! &ehttp://tinyurl.com/vote-for-nyan"
+  msgs: ['Got griefed? Report it to the admins using &6/ag&a!', 'Help keep our world
+      tidy! Report floating trees, raided deserts and abandoned buildings using &6/ls&a!',
+    'Keep the world tidy! Report floating trees, raided deserts and abandoned buildings
+      using &6/ls&a!', 'Learn more about our server! http://nyanpig.zohosites.com',
+    'Meet up on our Discord channel! https://discord.gg/4Qm3wrZ', 'If you like our
+      server, &bvote for us! &ehttp://tinyurl.com/vote-for-nyan']
+scrambleChance: 0.01
+admins:
+  - brainiac94
+  - Syndek
+  - beddong
+  - Konni999
+  - Covfefe
+prefix: cc
+antiafk: true
+banReaction: true
+
