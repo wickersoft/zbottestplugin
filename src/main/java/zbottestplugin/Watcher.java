@@ -23,6 +23,7 @@ import zedly.zbot.event.PlayerSpawnEvent;
 import zedly.zbot.event.SelfTeleportEvent;
 import zedly.zbot.event.entity.EntityMetadataEvent;
 import zedly.zbot.entity.EntityMeta;
+import zedly.zbot.event.RecipeResponseEvent;
 import zedly.zbot.event.WindowOpenFinishEvent;
 import zedly.zbot.inventory.FurnaceInventory;
 import zedly.zbot.inventory.Inventory;
@@ -140,6 +141,11 @@ public class Watcher implements Listener {
             Player ep = (Player) evt.getEntity();
             System.out.println("Player " + Storage.self.getEnvironment().getPlayerNameByUUID(ep.getUUID()) + " (" + ep.getUUID() + ") has EID " + ep.getEntityId());
         }
+    }
+    
+    @EventHandler
+    public void recipeResponse(RecipeResponseEvent evt) {
+        System.out.println(evt.getRecipeId());        
     }
 
     @EventHandler

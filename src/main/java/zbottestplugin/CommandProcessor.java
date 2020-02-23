@@ -824,6 +824,10 @@ public class CommandProcessor {
             case "buy_bookshelves":
                 new TaskBuyBookShelves().start();
                 break;
+            case "recipe":
+                //Storage.self.recipeBookStatus(true, false, true, false, true, false, true, false);
+                Storage.self.requestRecipe(args[1], true);
+                break;
             case "exit":
                 Storage.self.shutdown();
                 break;
