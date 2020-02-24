@@ -82,7 +82,7 @@ public class ZBotTestPlugin extends ZBotPlugin {
         }
         if (config.getBoolean("defend", false)) {
             System.out.println("Enabling Defender");
-            Storage.self.scheduleSyncRepeatingTask(this, Storage.defender, 500, 500);
+            Storage.self.scheduleSyncRepeatingTask(this, Storage.defender, config.getInt("defend-delay", 1000), config.getInt("broadcast.delay", 1000));
         }
     }
 
