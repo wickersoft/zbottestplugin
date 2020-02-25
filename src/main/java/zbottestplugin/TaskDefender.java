@@ -49,8 +49,8 @@ public class TaskDefender implements Runnable {
             Location loc = Storage.self.getLocation();
             Vector v = loc.vectorTo(target.getLocation()).toSpherical();
             Storage.self.moveTo(new Location(loc.getX(), loc.getY(), loc.getZ(), 180 / Math.PI * v.getYaw(), 180 / Math.PI * v.getPitch()));
-            Storage.self.swingArm(false);
             Storage.self.attackEntity(target);
+            Storage.self.swingArm(false);
         }
     }
 
