@@ -8,6 +8,8 @@ package zbottestplugin;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -15,6 +17,7 @@ import java.util.LinkedList;
  */
 public class StringUtil {
 
+    private static final Pattern STACK_NOTATION_PATTERN = Pattern.compile("^(\\d+)x(\\d{1,2})\\+(\\d{1,2})", 0);
     private static final char[] hexValues = {0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66};
 
     public static String extract(String text, String start, String end) {
@@ -104,6 +107,27 @@ public class StringUtil {
         Arrays.sort(word1);
         Arrays.sort(word2);
         return Arrays.equals(word1, word2);
+    }
+
+    /**
+     * Reconstructs the true number of items from the stacks+items notation.
+     *
+     * @param amount
+     * @return
+     */
+    public static long parseStackNotation(String amount) {
+        Matcher matcher = STACK_NOTATION_PATTERN.matcher(amount);
+        if (!matcher.find()) {
+            if (amount.matches("\\d+")) {
+                return Long.parseLong(amount);
+            } else {
+                return -1;
+            }
+        }
+        String s_stacks = matcher.group(1);
+        String s_stackSize = matcher.group(2);
+        String s_items = matcher.group(3);
+        return Long.parseLong(s_stacks) * Long.parseLong(s_stackSize) + Long.parseLong(s_items);
     }
 
 }

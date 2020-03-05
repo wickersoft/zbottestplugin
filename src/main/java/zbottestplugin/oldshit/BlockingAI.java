@@ -30,8 +30,8 @@ import zedly.zbot.util.Vector;
 public class BlockingAI implements Runnable {
 
     private final double stepResolution = 0.4;
-    private final Object lock = "";
-    private final Object timestopLock = "kek";
+    private final Object lock = new Object();
+    private final Object timestopLock = new Object();
     private boolean timeStop = false;
 
     public void run() {

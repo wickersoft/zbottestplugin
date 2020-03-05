@@ -55,6 +55,7 @@ import zedly.zbot.entity.Sheep;
 import zedly.zbot.entity.Tameable;
 import zedly.zbot.entity.Unknown;
 import zedly.zbot.BlockFace;
+import zedly.zbot.block.TileSign;
 import zedly.zbot.entity.Monster;
 import zedly.zbot.entity.ZombieVillager;
 import zedly.zbot.inventory.FurnaceInventory;
@@ -112,7 +113,7 @@ public class CommandProcessor {
                     return;
                 }
                 JSONObject chinaTotal = (JSONObject) o;
-                
+
                 long confirmed = (long) (Long) chinaTotal.get("confirm");
                 long suspected = (long) (Long) chinaTotal.get("suspect");
                 long recovered = (long) (Long) chinaTotal.get("heal");
@@ -298,6 +299,21 @@ public class CommandProcessor {
                 if (block.hasTile()) {
                     respond(respondTo, "Tile: " + block.getTile());
                 }
+                break;
+            case "tess":
+                Tesseract tess;
+                if (args.length >= 4) {
+                    int x = Integer.parseInt(args[1]);
+                    int y = Integer.parseInt(args[2]);
+                    int z = Integer.parseInt(args[3]);
+                    tess = new Tesseract(x, y, z);
+                } else {
+                    ent = Storage.self.getEnvironment().getEntityById(Storage.recorder.getEntityId());
+                    tess = new Tesseract(ent.getLocation());
+                }
+
+                respond(respondTo, "This Tesseract contains " + tess.getAmount() + " of " + tess.getMaterial());
+
                 break;
             case "rblock":
                 if (args.length >= 4) {
