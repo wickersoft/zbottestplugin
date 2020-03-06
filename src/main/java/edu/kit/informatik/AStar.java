@@ -29,7 +29,7 @@ public class AStar {
     private static final int[][] RELATIVE_VECTORS = {
         {1, 0}, {0, 1}, {-1, 0}, {0, -1}
     };
-    
+
     public static final GeometricPath getPath(Location target) {
         return getPath(target, false);
     }
@@ -56,7 +56,7 @@ public class AStar {
             if (l.distanceTo(target) <= 1.05) {
                 return new GeometricPath(target, bestPath);
             } else if (bestPath.getLength() > MAX_PATH_WEIGHT) {
-                if(returnPartial) {
+                if (returnPartial && bestPath.getEndPoint().distanceSquareTo(target) < myLocation.distanceSquareTo(target)) {
                     return bestPath;
                 }
                 return null;
@@ -136,7 +136,7 @@ public class AStar {
                         markVisited(x + dx + ddx, y, z + dz + ddz);
                     }
                 } else {
-                     if (!isVisited(x + dx, y + 1, z + dz)
+                    if (!isVisited(x + dx, y + 1, z + dz)
                             && isBlockFree(x, y + 2, z)
                             && isBlockFree(x + dx, y + 2, z + dz)) {
                         /*
@@ -197,21 +197,21 @@ public class AStar {
         }
 
         public int compare(GeometricPath a, GeometricPath b) {
-            if(a == null) {
+            if (a == null) {
                 System.err.println("a == null");
                 System.out.println(targetLoc);
             }
-            if(b == null) {
+            if (b == null) {
                 System.err.println("b == null");
                 System.out.println(targetLoc);
             }
-            if(a.getEndPoint() == null) {
+            if (a.getEndPoint() == null) {
                 System.err.println("a.ep == null");
             }
-            if(b.getEndPoint() == null) {
+            if (b.getEndPoint() == null) {
                 System.err.println("b.ep == null");
             }
-            
+
             double h = aggressiveness * a.getEndPoint().distanceTo(targetLoc)
                     + a.getLength()
                     - aggressiveness * b.getEndPoint().distanceTo(targetLoc)
