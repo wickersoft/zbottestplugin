@@ -37,7 +37,7 @@ public class EnchantEngine {
     static final int BLOCK_WIDTH = 2;
     static final int NUM_ROWS = 4;
     static final int COLUMN_WIDTH = 1;
-    static final int NUM_AISLES = 3;
+    static final int NUM_AISLES = 5;
     static final int CHEST_SIZE = 54;
 
     private static final Pattern LORE_ENCHANT_PATTERN = Pattern.compile("\\u00a77([A-Za-z\\' ]+) (I|II|III|IV|V)?$");
@@ -72,21 +72,7 @@ public class EnchantEngine {
         for (int i = 0; i < ENCHANT_DATABASE.length; i++) {
             boolean found = false;
             for (int k = 0; k < args.length; k++) {
-                if (ENCHANT_DATABASE[i] != null && ENCHANT_DATABASE[i].equals(args[k])) {
-                    found = true;
-                } else {
-                    found = false;
-                    break;
-                }
-            }
-            if (found) {
-                results.add(i);
-            }
-        }
-        for (int i = 0; i < ENCHANT_DATABASE.length; i++) {
-            boolean found = false;
-            for (int k = 0; k < args.length; k++) {
-                if (ENCHANT_DATABASE[i] != null && ENCHANT_DATABASE[i].contains(args[k])) {
+                if (ENCHANT_DATABASE[i] != null && ENCHANT_DATABASE[i].matches("(.*)\\b" + args[k] + "(.+)")) {
                     found = true;
                 } else {
                     found = false;

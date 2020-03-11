@@ -19,9 +19,7 @@ import zedly.zbot.inventory.ItemStack;
  */
 public class TaskStoreBooks extends Task {
 
-    private int inboxZ = -8698;
-    private int inboxY = 122;
-    private int inboxChest = 0;
+    private int inboxIndex = 0;
 
     private int libraryIndex = 0;
     private int stored_books = 0;
@@ -50,7 +48,7 @@ public class TaskStoreBooks extends Task {
 
     private boolean loadUp() throws InterruptedException {
         while (tryGrabMoreItems()) {
-            if (inboxChest++ == 51) {
+            if ((inboxIndex += 54) >= 5616) {
                 return true;
             }
         }
@@ -58,16 +56,22 @@ public class TaskStoreBooks extends Task {
     }
 
     private boolean tryGrabMoreItems() throws InterruptedException {
-        ai.moveTo(getInboxWalk());
-        ai.openContainer(getInboxChest());
+        InboxLocation grabLoc = new InboxLocation(inboxIndex);
+        ai.moveTo(grabLoc.getWalkLocation());
+        System.out.println("opening chest " + grabLoc.toString());
+        ai.openContainer(grabLoc.getLocation());
         for (int i = 0; i < 54; i++) {
             if (InventoryUtil.findFreeStorageSlot(true) == -1) {
+                System.out.println("closing chest " + grabLoc.toString());
+                ai.closeContainer();
                 return false;
             }
             if (Storage.self.getInventory().getSlot(i) != null) {
                 ai.withdrawSlot(i);
             }
         }
+        System.out.println("closing chest " + grabLoc.toString());
+        ai.closeContainer();
         return true;
     }
 
@@ -81,8 +85,8 @@ public class TaskStoreBooks extends Task {
     private boolean tryDumpMoreItems() throws InterruptedException {
         LibraryLocation dumpLoc = new LibraryLocation(libraryIndex);
         ai.moveTo(dumpLoc.getWalkLocation());
+        System.out.println("closing chest " + EnchantEngine.friendlyIndex(dumpLoc));
         ai.openContainer(dumpLoc.getLocation());
-
         int staticOffset = Storage.self.getInventory().getStaticOffset();
 
         for (int i = staticOffset; i < staticOffset + 36; i++) {
@@ -105,20 +109,9 @@ public class TaskStoreBooks extends Task {
     }
 
     private void scanContainer() {
-        System.out.println("scanning chest");
         for (int i = 0; i < EnchantEngine.CHEST_SIZE; i++) {
             ItemStack is = Storage.self.getInventory().getSlot(i);
             EnchantEngine.rememberItemString(libraryIndex + i, EnchantEngine.stringifyItem(is));
-            EnchantEngine.getPriceEstimate(libraryIndex + i);
         }
     }
-
-    private Location getInboxChest() {
-        return new Location(289, inboxY + (inboxChest % 4), inboxZ - (inboxChest / 4));
-    }
-
-    private Location getInboxWalk() {
-        return new Location(291, inboxY, inboxZ - (inboxChest / 4)).centerHorizontally();
-    }
-
 }

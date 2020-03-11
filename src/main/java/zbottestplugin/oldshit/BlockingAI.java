@@ -190,7 +190,7 @@ public class BlockingAI implements Runnable {
         if (!waitForEvent(WindowOpenFinishEvent.class, 5000)) {
             return false;
         }
-        while (waitForEvent(SlotUpdateEvent.class, 250)) {
+        while (waitForEvent(SlotUpdateEvent.class, 500)) {
         }
         return true;
     }

@@ -35,6 +35,7 @@ public class TaskPigCamper extends Task {
     private static final Location LAPIS_TESSERACT_LOC = new Location(295, 140, -8699);
     private static final Location TRASH_CHEST_LOC = new Location(297, 137, -8701);
     private static final Location OUTPUT_CHEST_LOC = new Location(293, 137, -8699);
+    private static final Location BUTTON_LOC = new Location(293, 138, -8702).centerHorizontally();
     private static final HashSet<Material> TRASH_MATERIALS = new HashSet<>();
     private static TaskPigCamper instance;
 
@@ -49,6 +50,7 @@ public class TaskPigCamper extends Task {
         try {
             while (true) {
                 ai.tick();
+                Storage.self.placeBlock(BUTTON_LOC, BlockFace.EAST);
                 if (!grinding) {
                     break;
                 }
@@ -56,6 +58,7 @@ public class TaskPigCamper extends Task {
                 if (playerPresent) {
                     if (Storage.self.getLocation().distanceTo(ENCH_LOC) > 0.1) {
                         ai.moveTo(ENCH_LOC);
+                        Storage.self.placeBlock(BUTTON_LOC, BlockFace.EAST);
                     }
                     continue;
                 }
@@ -71,13 +74,17 @@ public class TaskPigCamper extends Task {
     }
 
     private boolean produceBook() throws InterruptedException {
-
+        Storage.self.placeBlock(BUTTON_LOC, BlockFace.EAST);
         dumpTrash();
+        Storage.self.placeBlock(BUTTON_LOC, BlockFace.EAST);
         getMaterials();
+        Storage.self.placeBlock(BUTTON_LOC, BlockFace.EAST);
         doEnchant();
+        Storage.self.placeBlock(BUTTON_LOC, BlockFace.EAST);
         dumpBook();
+        Storage.self.placeBlock(BUTTON_LOC, BlockFace.EAST);
         backToGold();
-
+        Storage.self.placeBlock(BUTTON_LOC, BlockFace.EAST);
         return true;
     }
 
@@ -292,9 +299,9 @@ public class TaskPigCamper extends Task {
             System.err.println("CME in getEntities() :( :(");
             System.err.println("Thread dump:");
             Map<Thread, StackTraceElement[]> dump = Thread.getAllStackTraces();
-            for(Entry<Thread, StackTraceElement[]> entry : dump.entrySet()) {
+            for (Entry<Thread, StackTraceElement[]> entry : dump.entrySet()) {
                 System.out.println("Thread " + entry.getKey() + ": ");
-                for(StackTraceElement element : entry.getValue()) {
+                for (StackTraceElement element : entry.getValue()) {
                     System.out.println("  " + element);
                 }
             }
