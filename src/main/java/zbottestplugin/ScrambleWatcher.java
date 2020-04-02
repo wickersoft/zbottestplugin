@@ -28,7 +28,7 @@ public class ScrambleWatcher implements Listener {
     private static final ArrayList<String> scrambleWords = new ArrayList<>();
     private String unknownScramble = null;
     private final Pattern scramblePattern = Pattern.compile("\"hoverEvent\":\\{\"action\":\"show_text\",\"value\":\\{\"color\":\"yellow\",\"text\":\"(.+?)\"\\}\\}");
-    private final Pattern scrambleSolvedPattern = Pattern.compile("\\{\"color\":\"yellow\",\"text\":\"(.+?) \"\\}");
+    private final Pattern scrambleSolvedPattern = Pattern.compile("\\[React\\] (.+) unscrambled the word (.+) in (.+) seconds!");
 
     public ScrambleWatcher() {
         loadScrambleDictionary();
@@ -54,19 +54,11 @@ public class ScrambleWatcher implements Listener {
                 System.out.println("Scramble: Unknown word " + anagram);
                 return;
             }
-
         }
         String solution = null;
-        if (evt.getRawMessage().contains("{\"color\":\"green\",\"text\":\"unscrambled the word \"}")) {
-            Matcher m = scrambleSolvedPattern.matcher(evt.getRawMessage());
-            if (m.find() && m.find()) {
-                solution = m.group(1);
-            }
-        } else if (evt.getRawMessage().contains("{\"color\":\"red\",\"text\":\"Nobody got the word \"}")) {
-            Matcher m = scrambleSolvedPattern.matcher(evt.getRawMessage());
-            if (m.find()) {
-                solution = m.group(1);
-            }
+        Matcher m = scrambleSolvedPattern.matcher(evt.getMessage());
+        if (m.find()) {
+            solution = m.group(2);
         }
         if (solution != null) {
             if (!scrambleWords.contains(solution)) {

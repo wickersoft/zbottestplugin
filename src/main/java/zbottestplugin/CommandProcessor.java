@@ -9,22 +9,19 @@ import zbottestplugin.oldshit.TaskFloor;
 import zbottestplugin.oldshit.TranslationService;
 import zbottestplugin.oldshit.TaskWalls;
 import zbottestplugin.oldshit.TaskFish;
-import edu.kit.informatik.AStar;
-import edu.kit.informatik.GeometricPath;
-import edu.kit.informatik.Node;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.Collection;
-import java.util.LinkedList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.UUID;
+import java.util.function.Predicate;
 import net.minecraft.server.NBTBase;
 import net.minecraft.server.NBTTagCompound;
 import net.minecraft.server.NBTTagList;
+import org.javatuples.Pair;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import zbottestplugin.HTTP.HTTPResponse;
@@ -33,12 +30,10 @@ import zedly.zbot.EntityType;
 import zedly.zbot.entity.Entity;
 import zedly.zbot.entity.Player;
 import zedly.zbot.Location;
-import zedly.zbot.inventory.Enchantment;
 import zedly.zbot.inventory.ItemStack;
 import zedly.zbot.environment.Block;
 import zedly.zbot.Material;
 import zbottestplugin.enchantengine2.EnchantEngine;
-import zbottestplugin.enchantengine2.LibraryLocation;
 import zbottestplugin.enchantengine2.TaskBuyBookShelves;
 import zbottestplugin.enchantengine2.TaskBuyLapis;
 import zbottestplugin.enchantengine2.TaskLookUpOneSlot;
@@ -55,8 +50,6 @@ import zedly.zbot.entity.Sheep;
 import zedly.zbot.entity.Tameable;
 import zedly.zbot.entity.Unknown;
 import zedly.zbot.BlockFace;
-import zedly.zbot.block.TileSign;
-import zedly.zbot.entity.Monster;
 import zedly.zbot.entity.ZombieVillager;
 import zedly.zbot.inventory.FurnaceInventory;
 import zedly.zbot.inventory.Inventory;
@@ -69,11 +62,18 @@ import zedly.zbot.inventory.VillagerInventory;
  */
 public class CommandProcessor {
 
+    private static final HashMap<String, WorldometersCorona.Line1Type> LINE_1_TYPES;
+    private static final HashMap<String, WorldometersCorona.Line2Type> LINE_2_TYPES;
+    
+    private static final Predicate<Block> NON_AIR_PREDICATE = (block) -> {return block.getType() != Material.AIR;};
+
     public static void onCommand(String player, String command, boolean pm) throws Exception {
         String[] args = command.split(" ");
-        String respondTo = null;
+        final String respondTo;
         if (pm) {
             respondTo = player;
+        } else {
+            respondTo = null;
         }
         switch (args[0]) {
             case "hi":
@@ -94,7 +94,72 @@ public class CommandProcessor {
             case "discord":
                 respond(respondTo, "&aOfficial Discord Server: &ehttps://discord.gg/4Qm3wrZ");
                 break;
+            case "top":
+            case "top5":
             case "stats":
+            case "numbers":
+            case "critical":
+            case "active":
+            case "dead":
+            case "deceased":
+            case "deaths":
+            case "crit":
+            case "healed":
+            case "recovered":
+                WorldometersCorona.Line1Type type1 = LINE_1_TYPES.get(args[0]);
+                WorldometersCorona.Line2Type type2 = LINE_2_TYPES.get(args[0]);
+                final Pair<String, String> lines;
+                if (args.length == 2) {
+                    lines = WorldometersCorona.query(args[1], type1, type2);
+                } else {
+                    lines = WorldometersCorona.query(type1, type2);
+                }
+                if (lines != null) {
+                    respond(respondTo, lines.getValue0());
+                    Storage.self.scheduleSyncDelayedTask(Storage.plugin, () -> {
+                        respond(respondTo, lines.getValue1());
+                    }, 50);
+                } else {
+                    final Pair<String, String> lines1;
+                    if (args.length == 2) {
+                        if (args[1].equals("nochina")) {
+                            lines1 = ArcGISCorona.friendlyTop5NumbersNoChina();
+                        } else {
+                            lines1 = ArcGISCorona.friendlyRecentNewInfectionsByCountry(args[1]);
+                        }
+                    } else {
+                        lines1 = ArcGISCorona.friendlyTop5Numbers();
+                    }
+                    if (lines1 == null) {
+                        respond(respondTo, "Could not perform query");
+                    } else {
+                        respond(respondTo, lines1.getValue0());
+                        Storage.self.scheduleSyncDelayedTask(Storage.plugin, () -> {
+                            respond(respondTo, "&c&o(ArcGIS Fallback) " + lines1.getValue1());
+                        }, 50);
+                    }
+                }
+                break;
+            case "arcstats":
+            case "statsarc":
+                if (args.length == 2) {
+                    if (args[1].equals("nochina")) {
+                        lines = ArcGISCorona.friendlyTop5NumbersNoChina();
+                    } else {
+                        lines = ArcGISCorona.friendlyRecentNewInfectionsByCountry(args[1]);
+                    }
+                } else {
+                    lines = ArcGISCorona.friendlyTop5Numbers();
+                }
+                if (lines == null) {
+                    respond(respondTo, "Could not perform query");
+                } else {
+                    respond(respondTo, lines.getValue0());
+                    respond(respondTo, lines.getValue1());
+                }
+                break;
+            case "statsqq":
+            case "qqstats":
                 HTTPResponse http = HTTP.https("https://view.inews.qq.com/g2/getOnsInfo?name=disease_h5", "UTF-8");
                 String s_json = new String(http.getContent());
                 JSONParser parser = new JSONParser();
@@ -479,6 +544,11 @@ public class CommandProcessor {
                     Storage.self.getInventory().click(Integer.parseInt(args[1]), 0, 1);
                 }
                 break;
+            case "howmuch":
+                Material mat = Material.valueOf(args[1]);
+                int howmuch = InventoryUtil.count(mat, true, false);
+                respond(respondTo, "" + howmuch);
+                break;
             case "pixel":
                 TaskPixel tp = new TaskPixel(args);
                 if (tp.load()) {
@@ -857,4 +927,40 @@ public class CommandProcessor {
             Storage.self.sendChat("/msg " + user + " " + message);
         }
     }
+
+    static {
+        LINE_1_TYPES = new HashMap<>();
+        LINE_2_TYPES = new HashMap<>();
+
+        LINE_1_TYPES.put("top5", WorldometersCorona.Line1Type.CUM_CONF);
+        LINE_2_TYPES.put("top5", WorldometersCorona.Line2Type.TOP_FIVE_NATN);
+        LINE_1_TYPES.put("top", WorldometersCorona.Line1Type.CUM_CONF);
+        LINE_2_TYPES.put("top", WorldometersCorona.Line2Type.TOP_FIVE_NATN);
+
+        LINE_1_TYPES.put("stats", WorldometersCorona.Line1Type.CUM_CONF);
+        LINE_2_TYPES.put("stats", WorldometersCorona.Line2Type.CUM_CONF_HIST);
+
+        LINE_1_TYPES.put("active", WorldometersCorona.Line1Type.ACT_CONF);
+        LINE_2_TYPES.put("active", WorldometersCorona.Line2Type.ACT_CONF_HIST);
+
+        LINE_1_TYPES.put("deaths", WorldometersCorona.Line1Type.CUM_DEAD);
+        LINE_2_TYPES.put("deaths", WorldometersCorona.Line2Type.CUM_DEAD_HIST);
+        LINE_1_TYPES.put("dead", WorldometersCorona.Line1Type.CUM_DEAD);
+        LINE_2_TYPES.put("dead", WorldometersCorona.Line2Type.CUM_DEAD_HIST);
+        LINE_1_TYPES.put("deceased", WorldometersCorona.Line1Type.CUM_DEAD);
+        LINE_2_TYPES.put("deceased", WorldometersCorona.Line2Type.CUM_DEAD_HIST);
+
+        LINE_1_TYPES.put("critical", WorldometersCorona.Line1Type.CUM_CONF);
+        LINE_2_TYPES.put("critical", WorldometersCorona.Line2Type.NUM_OVER_VIEW);
+        LINE_1_TYPES.put("numbers", WorldometersCorona.Line1Type.CUM_CONF);
+        LINE_2_TYPES.put("numbers", WorldometersCorona.Line2Type.NUM_OVER_VIEW);
+
+        LINE_1_TYPES.put("heal", WorldometersCorona.Line1Type.CUM_HEAL);
+        LINE_2_TYPES.put("heal", WorldometersCorona.Line2Type.CUM_HEAL_HIST);
+        LINE_1_TYPES.put("healed", WorldometersCorona.Line1Type.CUM_HEAL);
+        LINE_2_TYPES.put("healed", WorldometersCorona.Line2Type.CUM_HEAL_HIST);
+        LINE_1_TYPES.put("recovered", WorldometersCorona.Line1Type.CUM_HEAL);
+        LINE_2_TYPES.put("recovered", WorldometersCorona.Line2Type.CUM_HEAL_HIST);
+    }
+
 }
