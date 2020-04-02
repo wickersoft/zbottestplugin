@@ -545,7 +545,7 @@ public class CommandProcessor {
                 }
                 break;
             case "howmuch":
-                Material mat = Material.valueOf(args[1]);
+                Material mat = Material.valueOf(args[1].toUpperCase());
                 int howmuch = InventoryUtil.count(mat, true, false);
                 respond(respondTo, "" + howmuch);
                 break;
