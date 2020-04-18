@@ -21,6 +21,7 @@ public class TaskScanLibrary extends Task {
 
     public void run() {
         int seenBooks = 0;
+        EnchantEngine.connect();
         try {
             for (int slotId = 0;; slotId += EnchantEngine.CHEST_SIZE) {
                 LibraryLocation ll = new LibraryLocation(slotId);
@@ -40,16 +41,18 @@ public class TaskScanLibrary extends Task {
                         chestEmpty = false;
                     }
                     EnchantEngine.rememberItemString(slotId + i, EnchantEngine.stringifyItem(is));
-                    EnchantEngine.getPriceEstimate(slotId + i);
                 }
 
                 System.out.println("seenbooks: " + seenBooks + ". closing chest " + EnchantEngine.friendlyIndex(ll));
                 Storage.self.closeWindow();
+                
                 ai.tick();
                 if (chestEmpty) {
                     break;
                 }
             }
+            Storage.self.sendChat("Uploading Cache to SQL server..");
+            EnchantEngine.flushCache();
             Storage.self.sendChat("Done! Indexed " + seenBooks + " items");
             ai.moveTo(EnchantEngine.HOME_LOC);
         } catch (InterruptedException ex) {

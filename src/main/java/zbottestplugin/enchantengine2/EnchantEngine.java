@@ -10,10 +10,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang3.tuple.Triple;
+import zbottestplugin.Storage;
 import zedly.zbot.BlockFace;
 import zedly.zbot.Location;
+import zedly.zbot.YamlConfiguration;
 import zedly.zbot.inventory.Enchantment;
 import zedly.zbot.inventory.ItemStack;
 
@@ -40,10 +44,10 @@ public class EnchantEngine {
     static final int NUM_AISLES = 5;
     static final int CHEST_SIZE = 54;
 
+    private static final SQLEnchantStorage ENCHANT_DATABASE;
     private static final Pattern LORE_ENCHANT_PATTERN = Pattern.compile("\\u00a77([A-Za-z\\' ]+) (I|II|III|IV|V)?$");
-    private static final String[] ENCHANT_DATABASE = new String[120000];
     private static final HashMap<String, Integer> ENCHANTMENT_PRICES = new HashMap<>();
-    private static Integer[] queryResults = new Integer[0];
+    private static ArrayList<Triple<Integer, String, Integer>> queryResults = new ArrayList();
     private static int lastQueryIndex = 0;
 
     private static final String[] zenchantments = {"Anthropomorphism", "Arborist", "Bind", "Blaze's Curse",
@@ -62,74 +66,59 @@ public class EnchantEngine {
     public static final String[] adItems = {"fortune-3", "silk_touch", "shred-5", "pierce", "lumber", "extraction-3", "gluttony", "night_vision", "stock", "aqua_affinity", "depth_strider-3", "infinity"};
 
     public static void rememberItemString(int absoluteIndex, String enchantString) {
-        ENCHANT_DATABASE[absoluteIndex] = enchantString;
+        ENCHANT_DATABASE.putCache(absoluteIndex, enchantString, getPriceEstimate(enchantString));
+    }
+
+    public static void connect() {
+        ENCHANT_DATABASE.connect();
+    }
+
+    public static void flushCache() {
+        ENCHANT_DATABASE.flushCache();
     }
 
     public static int queryEnchantment(String filter) {
-        ArrayList<Integer> results = new ArrayList<>();
-        String[] args = filter.split(" ");
-
-        for (int i = 0; i < ENCHANT_DATABASE.length; i++) {
-            boolean found = false;
-            for (int k = 0; k < args.length; k++) {
-                if (ENCHANT_DATABASE[i] != null && ENCHANT_DATABASE[i].matches("(.*)\\b" + args[k] + "(.+)")) {
-                    found = true;
-                } else {
-                    found = false;
-                    break;
-                }
-            }
-            if (found) {
-                results.add(i);
-            }
-        }
-
-        queryResults = results.toArray(new Integer[0]);
-
-        Arrays.sort(queryResults, (a, b) -> {
-            int aPrice = getPriceEstimate(a);
-            int bPrice = getPriceEstimate(b);
-            if (aPrice < bPrice) {
-                return -1;
-            } else if (bPrice < aPrice) {
-                return 1;
-            } else {
-                return 0;
-            }
-        });
-
-        return results.size();
+        queryResults = ENCHANT_DATABASE.query(filter);
+        return queryResults.size();
     }
 
     public static int getNumResults() {
-        return queryResults.length;
+        return queryResults.size();
     }
 
-    public static int getQueryResult(int listItem) {
+    public static Triple<Integer, String, Integer> getQueryResult() {
+        return getQueryResult(getLastQueryIndex());
+    }
+
+    public static Triple<Integer, String, Integer> getQueryResult(int listItem) {
         lastQueryIndex = listItem;
-        if (listItem >= 0 && listItem < queryResults.length) {
-            return queryResults[listItem];
+        if (listItem >= 0 && listItem < queryResults.size()) {
+            return queryResults.get(listItem);
         } else {
-            return -1;
+            return null;
         }
     }
 
     public static String getEnchantString(int absoluteIndex) {
-        if (absoluteIndex >= 0 && absoluteIndex < ENCHANT_DATABASE.length
-                && ENCHANT_DATABASE[absoluteIndex] != null) {
-            return ENCHANT_DATABASE[absoluteIndex];
+        String item = ENCHANT_DATABASE.getItem(absoluteIndex);
+        if (item != null) {
+            return item;
         } else {
             return "<empty>";
         }
     }
-    
+
     public static int getLastQueryIndex() {
         return lastQueryIndex;
     }
 
     public static int getPriceEstimate(int absoluteIndex) {
         String enchString = getEnchantString(absoluteIndex);
-        if (enchString.equals("<empty>")) {
+        return getPriceEstimate(enchString);
+    }
+
+    public static int getPriceEstimate(String enchString) {
+        if (enchString == null || enchString.equals("<empty>")) {
             return 0;
         }
 
@@ -253,12 +242,9 @@ public class EnchantEngine {
     public static String friendlyIndex(int absoluteIndex) {
         return friendlyIndex(new LibraryLocation(absoluteIndex));
     }
-    
+
     public static int getNumIndexedItems() {
-        int i;
-        for (i = 0; i < ENCHANT_DATABASE.length && ENCHANT_DATABASE[i] != null; i++) {
-        }
-        return i;
+        return ENCHANT_DATABASE.size();
     }
 
     private static final String[] zenchants = {"Anthropomorphism", "Arborist", "Bind", "Blaze's Curse",
@@ -275,6 +261,15 @@ public class EnchantEngine {
         "Missile", "Singularity", "Unrepairable"};
 
     static {
+        YamlConfiguration config = Storage.plugin.getConfig();
+        ENCHANT_DATABASE = new SQLEnchantStorage(
+                config.getString("enchant_engine.hostname", "localhost"),
+                config.getInt("enchant_engine.port", 3306),
+                config.getString("enchant_engine.username", "anonymous"),
+                config.getString("enchant_engine.password", ""),
+                config.getString("enchant_engine.database_name", "enchant_engine"),
+                config.getString("enchant_engine.table_name", "table"));
+
         ENCHANTMENT_PRICES.put("diamond_pickaxe", 30);
         ENCHANTMENT_PRICES.put("diamond_shovel", 10);
         ENCHANTMENT_PRICES.put("diamond_axe", 30);
@@ -524,9 +519,7 @@ public class EnchantEngine {
         ENCHANTMENT_PRICES.put("weight-3", 40);
         ENCHANTMENT_PRICES.put("weight-4", 80);
 
-        
         // VANILLA STARTS HERE
-        
         ENCHANTMENT_PRICES.put("aqua_affinity-1", 150);
 
         ENCHANTMENT_PRICES.put("bane_of_arthropods-1", 5);
@@ -541,7 +534,7 @@ public class EnchantEngine {
         ENCHANTMENT_PRICES.put("blast_protection-4", 80);
 
         ENCHANTMENT_PRICES.put("channeling-1", 75);
-        
+
         ENCHANTMENT_PRICES.put("depth_strider-1", 40);
         ENCHANTMENT_PRICES.put("depth_strider-2", 80);
         ENCHANTMENT_PRICES.put("depth_strider-3", 160);
@@ -580,7 +573,7 @@ public class EnchantEngine {
         ENCHANTMENT_PRICES.put("impaling-3", 20);
         ENCHANTMENT_PRICES.put("impaling-4", 40);
         ENCHANTMENT_PRICES.put("impaling-5", 80);
-        
+
         ENCHANTMENT_PRICES.put("infinity-1", 150);
 
         ENCHANTMENT_PRICES.put("knockback-1", 20);
@@ -593,7 +586,7 @@ public class EnchantEngine {
         ENCHANTMENT_PRICES.put("loyalty-1", 5);
         ENCHANTMENT_PRICES.put("loyalty-2", 10);
         ENCHANTMENT_PRICES.put("loyalty-3", 20);
-        
+
         ENCHANTMENT_PRICES.put("luck_of_the_sea-1", 20);
         ENCHANTMENT_PRICES.put("luck_of_the_sea-2", 40);
         ENCHANTMENT_PRICES.put("luck_of_the_sea-3", 80);
@@ -605,12 +598,12 @@ public class EnchantEngine {
         ENCHANTMENT_PRICES.put("mending-1", 100);
 
         ENCHANTMENT_PRICES.put("multishot-1", 25);
-        
+
         ENCHANTMENT_PRICES.put("piercing-1", 5);
         ENCHANTMENT_PRICES.put("piercing-2", 10);
         ENCHANTMENT_PRICES.put("piercing-3", 20);
         ENCHANTMENT_PRICES.put("piercing-4", 40);
-        
+
         ENCHANTMENT_PRICES.put("power-1", 10);
         ENCHANTMENT_PRICES.put("power-2", 20);
         ENCHANTMENT_PRICES.put("power-3", 40);
@@ -633,15 +626,15 @@ public class EnchantEngine {
         ENCHANTMENT_PRICES.put("quick_charge-1", 5);
         ENCHANTMENT_PRICES.put("quick_charge-2", 10);
         ENCHANTMENT_PRICES.put("quick_charge-3", 20);
-        
+
         ENCHANTMENT_PRICES.put("respiration-1", 75);
         ENCHANTMENT_PRICES.put("respiration-2", 150);
         ENCHANTMENT_PRICES.put("respiration-3", 300);
-        
+
         ENCHANTMENT_PRICES.put("riptide-1", 5);
         ENCHANTMENT_PRICES.put("riptide-2", 10);
         ENCHANTMENT_PRICES.put("riptide-3", 20);
-        
+
         ENCHANTMENT_PRICES.put("sharpness-1", 10);
         ENCHANTMENT_PRICES.put("sharpness-2", 20);
         ENCHANTMENT_PRICES.put("sharpness-3", 40);

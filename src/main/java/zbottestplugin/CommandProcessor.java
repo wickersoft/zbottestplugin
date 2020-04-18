@@ -21,6 +21,7 @@ import java.util.function.Predicate;
 import net.minecraft.server.NBTBase;
 import net.minecraft.server.NBTTagCompound;
 import net.minecraft.server.NBTTagList;
+import org.apache.commons.lang3.tuple.Triple;
 import org.javatuples.Pair;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -64,8 +65,10 @@ public class CommandProcessor {
 
     private static final HashMap<String, WorldometersCorona.Line1Type> LINE_1_TYPES;
     private static final HashMap<String, WorldometersCorona.Line2Type> LINE_2_TYPES;
-    
-    private static final Predicate<Block> NON_AIR_PREDICATE = (block) -> {return block.getType() != Material.AIR;};
+
+    private static final Predicate<Block> NON_AIR_PREDICATE = (block) -> {
+        return block.getType() != Material.AIR;
+    };
 
     public static void onCommand(String player, String command, boolean pm) throws Exception {
         String[] args = command.split(" ");
@@ -219,9 +222,9 @@ public class CommandProcessor {
                     respond(respondTo, "No results! Check your spelling or we might be out of stock");
                     break;
                 }
-                int absoluteIndex = EnchantEngine.getQueryResult(0);
-                int estPrice = EnchantEngine.getPriceEstimate(absoluteIndex);
-                String enchantString = EnchantEngine.getEnchantString(absoluteIndex);
+                Triple<Integer, String, Integer> result = EnchantEngine.getQueryResult(0);
+                int estPrice = result.getRight();
+                String enchantString = result.getMiddle();
                 respond(respondTo, "$" + (estPrice / 100) + "." + (estPrice % 100) + ": " + enchantString + " (1/" + (results) + ": result <n>)");
                 break;
             case "result":
@@ -231,13 +234,13 @@ public class CommandProcessor {
                 }
                 results = EnchantEngine.getNumResults();
                 int resultIndex = Integer.parseInt(args[1]) - 1;
-                if (EnchantEngine.getQueryResult(resultIndex) == -1) {
+                if (EnchantEngine.getQueryResult(resultIndex) == null) {
                     respond(respondTo, "Invalid result number! Use 1-" + EnchantEngine.getNumResults());
                 } else {
-                    absoluteIndex = EnchantEngine.getQueryResult(resultIndex);
-                    String itemString = EnchantEngine.getEnchantString(absoluteIndex);
-                    estPrice = EnchantEngine.getPriceEstimate(absoluteIndex);
-                    respond(respondTo, "$" + (estPrice / 100) + "." + (estPrice % 100) + ": " + itemString + " (" + (resultIndex + 1) + "/" + (results) + ": result <n>)");
+                    result = EnchantEngine.getQueryResult(0);
+                    estPrice = result.getRight();
+                    enchantString = result.getMiddle();
+                    respond(respondTo, "$" + (estPrice / 100) + "." + (estPrice % 100) + ": " + enchantString + " (1/" + (results) + ": result <n>)");
                 }
                 break;
         }
@@ -293,9 +296,12 @@ public class CommandProcessor {
                     respond(respondTo, "No listings available for " + adItem);
                     break;
                 }
+                Triple<Integer, String, Integer> firstResult = EnchantEngine.getQueryResult(0);
+                int estPrice = firstResult.getRight();
+                String enchantString = firstResult.getMiddle();
+                respond(respondTo, "$" + (estPrice / 100) + "." + (estPrice % 100) + ": " + enchantString + " (1/" + (results) + ": result <n>)");
                 int resultNumber = EnchantEngine.getNumResults();
-                int cheapestItem = EnchantEngine.getQueryResult(0);
-                int price = EnchantEngine.getPriceEstimate(cheapestItem);
+                int price = firstResult.getRight();
                 Storage.self.sendChat("Get one of " + resultNumber + " " + adItem + " books starting at $" + (price / 100) + "." + (price % 100) + "! /msg " + Storage.self.getName() + " query " + adItem);
                 break;
             case "entity":
@@ -792,11 +798,7 @@ public class CommandProcessor {
                 new TaskStoreBooks().start();
                 break;
             case "fetchlib":
-                if (args.length == 1) {
-                    absoluteSlot = EnchantEngine.getQueryResult(EnchantEngine.getLastQueryIndex());
-                } else {
-                    absoluteSlot = Integer.parseInt(args[1]);
-                }
+                absoluteSlot = EnchantEngine.getQueryResult().getLeft();
                 new TaskRetrieveOneItem(absoluteSlot).start();
                 break;
             case "floor":
@@ -913,6 +915,9 @@ public class CommandProcessor {
             case "recipe":
                 //Storage.self.recipeBookStatus(true, false, true, false, true, false, true, false);
                 Storage.self.requestRecipe(args[1], true);
+                break;
+            case "spawn_point":
+                respond(respondTo, Storage.self.getEnvironment().getSpawnPoint().toString());
                 break;
             case "exit":
                 Storage.self.shutdown();

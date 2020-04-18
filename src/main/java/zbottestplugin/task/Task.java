@@ -15,7 +15,7 @@ import zbottestplugin.oldshit.BlockingAI;
 public abstract class Task extends Thread {
     
     protected final BlockingAI ai;
-    protected final int aiTaskId;
+    protected int aiTaskId;
     
     public Task(int interval) {
         this.ai = new BlockingAI();
@@ -24,5 +24,10 @@ public abstract class Task extends Thread {
     
     protected void unregister() {
         Storage.self.cancelTask(aiTaskId);
-    }    
+    }
+    
+    protected void setTickSpeed(int newInterval) {
+        Storage.self.cancelTask(aiTaskId);
+        aiTaskId = Storage.self.scheduleSyncRepeatingTask(Storage.plugin, ai, newInterval);    
+    }
 }
