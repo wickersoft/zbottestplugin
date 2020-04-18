@@ -25,6 +25,9 @@ import org.apache.commons.lang3.tuple.Triple;
 import org.javatuples.Pair;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import zbottestplugin.HTTP.HTTPResponse;
 import zedly.zbot.ClientSettings;
 import zedly.zbot.EntityType;
@@ -212,6 +215,42 @@ public class CommandProcessor {
                     ex.printStackTrace();
                     return;
                 }
+            case "tldr":
+            case "wiki":
+                String searchTerm = command.substring(5);
+                String searchUrl = "https://en.wikipedia.org/w/index.php?search=" + searchTerm.replace(" ", "+");
+
+                try {
+                    http = HTTP.http(searchUrl);
+                    String html = new String(http.getContent(), "UTF-8");
+                    Document doc = Jsoup.parse(html);
+                    Element elm = doc.selectFirst("body > div#content > div#bodyContent > div#mw-content-text > div.mw-parser-output > p:contains( ):has(b)");
+                    if (elm == null) {
+                        respond(respondTo, "No article available");
+                        return;
+                    }
+
+                    String string = elm.text().replaceAll("\\[\\d+\\]", "");
+                    String[] sentences = string.split("\\. |\\.$");
+                    string = "";
+
+                    for (int i = 0; i < sentences.length; i++) {
+                        if (string.length() + sentences[i].length() + 2 < 240) {
+                            string += sentences[i] + ". ";
+                        } else {
+                            break;
+                        }
+                    }
+
+                    if (string.equals("")) {
+                        respond(respondTo, "First sentence too long, unable to summarize");
+                        return;
+                    }
+                    respond(respondTo, "&o" + string);
+                } catch (IOException ex) {
+                    respond(respondTo, "I/O Error");
+                }
+                break;
             case "query":
                 if (args.length == 1) {
                     respond(respondTo, "Shop for enchanted books! /msg " + Storage.self.getName() + " query fire_aspect-2 unbreaking-3");
@@ -237,7 +276,7 @@ public class CommandProcessor {
                 if (EnchantEngine.getQueryResult(resultIndex) == null) {
                     respond(respondTo, "Invalid result number! Use 1-" + EnchantEngine.getNumResults());
                 } else {
-                    result = EnchantEngine.getQueryResult(0);
+                    result = EnchantEngine.getQueryResult(resultIndex);
                     estPrice = result.getRight();
                     enchantString = result.getMiddle();
                     respond(respondTo, "$" + (estPrice / 100) + "." + (estPrice % 100) + ": " + enchantString + " (1/" + (results) + ": result <n>)");
@@ -299,7 +338,6 @@ public class CommandProcessor {
                 Triple<Integer, String, Integer> firstResult = EnchantEngine.getQueryResult(0);
                 int estPrice = firstResult.getRight();
                 String enchantString = firstResult.getMiddle();
-                respond(respondTo, "$" + (estPrice / 100) + "." + (estPrice % 100) + ": " + enchantString + " (1/" + (results) + ": result <n>)");
                 int resultNumber = EnchantEngine.getNumResults();
                 int price = firstResult.getRight();
                 Storage.self.sendChat("Get one of " + resultNumber + " " + adItem + " books starting at $" + (price / 100) + "." + (price % 100) + "! /msg " + Storage.self.getName() + " query " + adItem);

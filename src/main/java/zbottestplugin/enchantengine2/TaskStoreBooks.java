@@ -35,6 +35,7 @@ public class TaskStoreBooks extends Task {
                 loadOff();
                 if (allBooksGone) {
                     ai.moveTo(EnchantEngine.HOME_LOC);
+                    EnchantEngine.flushCache();
                     Storage.self.sendChat("Done! Indexed " + EnchantEngine.getNumIndexedItems() + " items (added " + stored_books + ")");
                     unregister();
                     return;
