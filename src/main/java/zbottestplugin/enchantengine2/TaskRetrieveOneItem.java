@@ -43,6 +43,7 @@ public class TaskRetrieveOneItem extends Task {
             ai.openContainer(EnchantEngine.OUTPUT_CHEST);          
             ai.depositSlot(destSlot + Storage.self.getInventory().getStaticOffset());            
             ai.closeContainer();
+            EnchantEngine.rememberItemString(slotId, null);
             Storage.self.sendChat("Done!");
             ai.tick();
             ai.moveTo(new Location(-902, 38, 4859).centerHorizontally());
