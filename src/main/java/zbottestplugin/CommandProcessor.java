@@ -279,7 +279,7 @@ public class CommandProcessor {
                     result = EnchantEngine.getQueryResult(resultIndex);
                     estPrice = result.getRight();
                     enchantString = result.getMiddle();
-                    respond(respondTo, "$" + (estPrice / 100) + "." + (estPrice % 100) + ": " + enchantString + " (" + resultIndex + "/" + (results) + ": result <n>)");
+                    respond(respondTo, "$" + (estPrice / 100) + "." + (estPrice % 100) + ": " + enchantString + " (" + (resultIndex + 1) + "/" + (results) + ": result <n>)");
                 }
                 break;
         }
