@@ -112,7 +112,7 @@ public class TaskStoreBooks extends Task {
     private void scanContainer() {
         for (int i = 0; i < EnchantEngine.CHEST_SIZE; i++) {
             ItemStack is = Storage.self.getInventory().getSlot(i);
-            EnchantEngine.rememberItemString(libraryIndex + i, EnchantEngine.stringifyItem(is));
+            EnchantEngine.cacheItemString(libraryIndex + i, EnchantEngine.stringifyItem(is));
         }
     }
 }

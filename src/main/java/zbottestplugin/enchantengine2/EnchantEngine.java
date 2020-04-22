@@ -67,6 +67,11 @@ public class EnchantEngine {
 
     public static void rememberItemString(int absoluteIndex, String enchantString) {
         ENCHANT_DATABASE.putCache(absoluteIndex, enchantString, getPriceEstimate(enchantString));
+        ENCHANT_DATABASE.flushCache();
+    }
+
+    public static void cacheItemString(int absoluteIndex, String enchantString) {
+        ENCHANT_DATABASE.putCache(absoluteIndex, enchantString, getPriceEstimate(enchantString));
     }
 
     public static void connect() {

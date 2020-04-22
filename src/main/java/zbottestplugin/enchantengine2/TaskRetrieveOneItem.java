@@ -5,6 +5,7 @@ import zbottestplugin.InventoryUtil;
 import zbottestplugin.Storage;
 import zbottestplugin.task.Task;
 import zedly.zbot.Location;
+import zedly.zbot.Material;
 import zedly.zbot.inventory.ItemStack;
 
 public class TaskRetrieveOneItem extends Task {
@@ -29,6 +30,9 @@ public class TaskRetrieveOneItem extends Task {
             ItemStack is = Storage.self.getInventory().getSlot(chestSlot);
             if (is == null) {
                 Storage.self.sendChat("Slot " + EnchantEngine.friendlyIndex(ll) + "(" + slotId + ") contains nothing");
+                if(InventoryUtil.count(Material.ENCHANTED_BOOK, false, true) != 0) {
+                    EnchantEngine.rememberItemString(slotId, null);
+                }
                 unregister();
                 return;
             }
