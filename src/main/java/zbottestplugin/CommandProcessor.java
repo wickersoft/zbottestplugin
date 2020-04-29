@@ -776,7 +776,7 @@ public class CommandProcessor {
                     break;
                 }
                 NBTTagCompound l = (NBTTagCompound) k;
-                k = l.getTag("ench");
+                k = l.getTag("Enchantments");
 
                 if (k.getId() != 9) {
                     Storage.self.sendChat("'ench' tag not a list");
@@ -787,7 +787,7 @@ public class CommandProcessor {
                 Storage.self.sendChat(count + " enchants:");
                 for (int i = 0; i < count; i++) {
                     NBTTagCompound m = (NBTTagCompound) n.tagAt(i);
-                    Storage.self.sendChat("ench " + i + ": id" + m.getShort("id") + " lvl " + m.getShort("lvl"));
+                    Storage.self.sendChat("ench " + i + ": id " + m.getString("id") + " lvl " + m.getShort("lvl"));
                 }
                 break;
             case "ench":
@@ -802,8 +802,7 @@ public class CommandProcessor {
                 break;
             case "lore":
                 is = Storage.self.getInventory().getSlot(Storage.self.getInventory().getSelectedSlot());
-                List<String> lore = is.getLore();
-
+                List<String> lore = is.getLore();                
                 if (lore == null || lore.isEmpty()) {
                     Storage.self.sendChat("This item has no lore");
                 } else {

@@ -40,7 +40,7 @@ public class TaskScanLibrary extends Task {
                         seenBooks++;
                         chestEmpty = false;
                     }
-                    EnchantEngine.rememberItemString(slotId + i, EnchantEngine.stringifyItem(is));
+                    EnchantEngine.cacheItemString(slotId + i, EnchantEngine.stringifyItem(is));
                 }
 
                 System.out.println("seenbooks: " + seenBooks + ". closing chest " + EnchantEngine.friendlyIndex(ll));
