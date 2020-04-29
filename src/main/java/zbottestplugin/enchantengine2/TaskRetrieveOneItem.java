@@ -40,7 +40,7 @@ public class TaskRetrieveOneItem extends Task {
             ai.closeContainer();
             
             ai.moveTo(zbottestplugin.enchantengine2.EnchantEngine.OUTPUT_LOC.centerHorizontally());
-            ai.openContainer(EnchantEngine.OUTPUT_CHEST);          
+            ai.openContainer(EnchantEngine.AMAZON_OUTPUT_CHEST);          
             ai.depositSlot(destSlot + Storage.self.getInventory().getStaticOffset());            
             ai.closeContainer();
             EnchantEngine.rememberItemString(slotId, null);

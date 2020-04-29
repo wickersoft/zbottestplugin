@@ -186,17 +186,25 @@ public class BlockingAI implements Runnable {
     }
 
     public boolean openContainer(int x, int y, int z) throws InterruptedException {
+        return openContainer(x, y, z, 5000);
+    }
+
+    public boolean openContainer(int x, int y, int z, int timeout) throws InterruptedException {
         Storage.self.placeBlock(x, y, z, BlockFace.NORTH);
-        if (!waitForEvent(WindowOpenFinishEvent.class, 5000)) {
+        if (!waitForEvent(WindowOpenFinishEvent.class, timeout)) {
             return false;
         }
         while (waitForEvent(SlotUpdateEvent.class, 500)) {
         }
         return true;
     }
-
+    
     public boolean openContainer(Location loc) throws InterruptedException {
         return openContainer(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+    }
+    
+    public boolean openContainer(Location loc, int timeout) throws InterruptedException {
+        return openContainer(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), timeout);
     }
 
     public boolean closeContainer() throws InterruptedException {

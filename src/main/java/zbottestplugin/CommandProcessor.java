@@ -16,6 +16,7 @@ import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.Predicate;
 import net.minecraft.server.NBTBase;
@@ -54,6 +55,7 @@ import zedly.zbot.entity.Sheep;
 import zedly.zbot.entity.Tameable;
 import zedly.zbot.entity.Unknown;
 import zedly.zbot.BlockFace;
+import zedly.zbot.PotionEffect;
 import zedly.zbot.entity.ZombieVillager;
 import zedly.zbot.inventory.FurnaceInventory;
 import zedly.zbot.inventory.Inventory;
@@ -956,6 +958,26 @@ public class CommandProcessor {
                 break;
             case "spawn_point":
                 respond(respondTo, Storage.self.getEnvironment().getSpawnPoint().toString());
+                break;
+            case "effects":
+                LivingEntity le;
+                if (args.length == 2 && args[1].matches("\\d+")) {
+                    entityId = Integer.parseInt(args[1]);
+                    ent = Storage.self.getEnvironment().getEntityById(entityId);
+                    if (ent == null) {
+                        respond(respondTo, "Entity " + entityId + " is not visible");
+                        break;
+                    }
+                    if (!(ent instanceof LivingEntity)) {
+                        respond(respondTo, "Entity " + entityId + " is not a LivingEntity");
+                        break;
+                    }
+                    le = (LivingEntity) ent;
+                } else {
+                    le = Storage.self;
+                }
+                Map<PotionEffect, Integer> effects = le.getPotionEffects();
+                respond(respondTo, effects.toString());
                 break;
             case "exit":
                 Storage.self.shutdown();

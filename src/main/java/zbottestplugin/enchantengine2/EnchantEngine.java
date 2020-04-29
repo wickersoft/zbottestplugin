@@ -29,7 +29,8 @@ public class EnchantEngine {
 
     static final Location HOME_LOC = new Location(297, 122, -8704).centerHorizontally();
     static final Location OUTPUT_LOC = HOME_LOC;
-    static final Location OUTPUT_CHEST = new Location(296, 122, -8704);
+    static final Location AMAZON_OUTPUT_CHEST = new Location(296, 122, -8704);
+    static final Location MALL_OUTPUT_CHEST = new Location(-3052, 73, -9731);
 
     static final Location ROOT_CHEST = new Location(301, 122, -8717);
     static final Location ROOT_WALK_LOCATION = new Location(301, 122, -8716);
