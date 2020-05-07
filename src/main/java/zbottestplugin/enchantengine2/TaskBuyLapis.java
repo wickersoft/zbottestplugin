@@ -50,7 +50,7 @@ public class TaskBuyLapis extends Task {
         super(100);
     }
 
-    public void run() {        
+    public void work() {        
         try {
             ai.moveTo(LAPIS_TRADE_LOC);
             while (true) {

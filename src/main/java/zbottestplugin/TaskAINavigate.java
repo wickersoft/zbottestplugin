@@ -22,11 +22,12 @@ public class TaskAINavigate extends Task {
     }
 
     @Override
-    public void run() {
+    public void work() throws Exception {
         try {
-            ai.navigateTo(target);
+            ai.navigateTo2(target);
         } catch (InterruptedException ex) {
         }
+        unregister();
     }
 
 }

@@ -43,7 +43,7 @@ public class TaskBuyBookShelves extends Task {
         super(100);
     }
 
-    public void run() {
+    public void work() {
         try {
             ai.moveTo(BOOKSHELF_TRADE_LOC);
             while (true) {

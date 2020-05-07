@@ -23,7 +23,7 @@ public class TaskScanLibrary extends Task {
         super(50);
     }
 
-    public void run() {
+    public void work() {
         int seenBooks = 0;
         try {
             for (int slotId = 0; slotId < MAX_INDEX; slotId += CHEST_SIZE) {

@@ -836,6 +836,13 @@ public class CommandProcessor {
             case "store_books":
                 new TaskStoreBooks().start();
                 break;
+            case "getench":
+                results = EnchantEngine.queryEnchantment(command.substring(command.indexOf(" ") + 1));
+                if (results == 0) {
+                    respond(respondTo, "No results! Check your spelling or we might be out of stock");
+                    break;
+                }
+                Triple<Integer, String, Integer> result = EnchantEngine.getQueryResult(0);
             case "fetchlib":
                 absoluteSlot = EnchantEngine.getQueryResult().getLeft();
                 new TaskRetrieveOneItem(absoluteSlot).start();
@@ -977,6 +984,9 @@ public class CommandProcessor {
                 }
                 Map<PotionEffect, Integer> effects = le.getPotionEffects();
                 respond(respondTo, effects.toString());
+                break;
+            case "trees":
+                new TaskTreeFarm(100).start();
                 break;
             case "exit":
                 Storage.self.shutdown();

@@ -28,7 +28,7 @@ public class TaskLookUpOneSlot extends Task {
         this.slotId = slot;
     }
 
-    public void run() {
+    public void work() {
 
         try {
             LibraryLocation ll = new LibraryLocation(slotId);

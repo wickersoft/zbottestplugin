@@ -39,7 +39,7 @@ public class TaskSellBooks extends Task {
         super(100);
     }
 
-    public void run() {
+    public void work() {
         try {
             ai.moveTo(BOOK_TRADE_LOC);
             while (true) {

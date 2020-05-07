@@ -30,4 +30,19 @@ public abstract class Task extends Thread {
         Storage.self.cancelTask(aiTaskId);
         aiTaskId = Storage.self.scheduleSyncRepeatingTask(Storage.plugin, ai, newInterval);    
     }
+    
+    @Override
+    public final void run() {
+        try {
+            work();
+        } catch (InterruptedException ex) {
+            System.out.println("Task " + this + " interrupted");
+        } catch (Exception ex) {
+            System.err.println("Exception while running Task " + this);
+            ex.printStackTrace();
+        }
+        unregister();
+    }
+    
+    public abstract void work() throws Exception;
 }

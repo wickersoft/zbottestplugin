@@ -44,7 +44,7 @@ public class TaskSellIron extends Task {
         super(100);
     }
 
-    public void run() {
+    public void work() {
         try {
             ai.moveTo(IRON_TRADE_LOC);
             while (true) {

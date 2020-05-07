@@ -42,7 +42,7 @@ public class TaskPigCamper extends Task {
         super(100);
     }
 
-    public void run() {
+    public void work() {
         try {
             while (true) {
                 ai.tick();

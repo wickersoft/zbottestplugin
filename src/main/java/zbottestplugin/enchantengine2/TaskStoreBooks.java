@@ -28,7 +28,7 @@ public class TaskStoreBooks extends Task {
         super(50);
     }
 
-    public void run() {
+    public void work() {
         try {
             while (true) {
                 boolean allBooksGone = loadUp();

@@ -19,7 +19,7 @@ public class TaskScanLibrary extends Task {
         super(50);
     }
 
-    public void run() {
+    public void work() {
         int seenBooks = 0;
         EnchantEngine.connect();
         try {
