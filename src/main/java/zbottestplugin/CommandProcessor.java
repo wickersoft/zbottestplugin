@@ -1047,6 +1047,16 @@ public class CommandProcessor {
                     }
                 }.start();
                 break;
+            case "eat2":
+                new Task() {
+                    @Override
+                    public void work() throws InterruptedException {
+                        Storage.self.sendChat("start");
+                        ai.eat(0);
+                        Storage.self.sendChat("finish");
+                    }
+                }.start();
+                break;
             case "exit":
                 Storage.self.shutdown();
                 break;

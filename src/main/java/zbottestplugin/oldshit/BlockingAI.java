@@ -20,7 +20,9 @@ import zedly.zbot.event.Event;
 import zedly.zbot.Location;
 import zedly.zbot.BlockFace;
 import zedly.zbot.event.EventHandler;
+import zedly.zbot.event.HealthChangeEvent;
 import zedly.zbot.event.Listener;
+import zedly.zbot.event.PlayerFinishEatingEvent;
 import zedly.zbot.event.SlotUpdateEvent;
 import zedly.zbot.event.TransactionResponseEvent;
 import zedly.zbot.event.WindowOpenFinishEvent;
@@ -174,13 +176,10 @@ public class BlockingAI implements Runnable {
     }
 
     public void eat(int usedHand) throws InterruptedException {
-        CallbackLock cLock = new CallbackLock();
-        Storage.self.eatHeldItem(usedHand, () -> {
-            cLock.finish();
-        });
-        while (!cLock.isFinished()) {
-            tick();
-        }
+        Storage.self.eatHeldItem(usedHand);
+        waitForEvent(PlayerFinishEatingEvent.class, (e) -> {
+            return e.getPlayer() == Storage.self;
+        }, 10000);
     }
 
     public void tick() throws InterruptedException {
@@ -204,7 +203,7 @@ public class BlockingAI implements Runnable {
         tick();
     }
 
-    public <T extends Event> boolean waitForEvent(final Class<T> eventClass, Predicate<Event> eventFilter, int timeoutMillis) throws InterruptedException {
+    public <T extends Event> boolean waitForEvent(final Class<T> eventClass, Predicate<T> eventFilter, int timeoutMillis) throws InterruptedException {
         long startTime = System.currentTimeMillis();
         final BlockingAI ai = this;
         final AtomicBoolean detected = new AtomicBoolean();
@@ -212,7 +211,7 @@ public class BlockingAI implements Runnable {
 
         Storage.self.registerEvents(new Listener() {
             @EventHandler
-            public void listen(Event hue) {
+            public void listen(T hue) {
                 if (eventClass.isInstance(hue) && eventFilter.test(hue)) {
                     detected.set(true);
                     Storage.self.unregisterEvents(this);
