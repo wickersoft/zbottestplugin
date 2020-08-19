@@ -292,8 +292,7 @@ public class CommandProcessor {
         switch (args[0]) {
             case "eat":
                 System.out.println(Storage.self.getFoodLevel());
-                Storage.self.eatHeldItem(0, () -> {
-                });
+                Storage.self.eatHeldItem(0);
                 break;
             case "trans":
             case "translate":
