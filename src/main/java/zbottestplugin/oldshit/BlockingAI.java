@@ -87,10 +87,7 @@ public class BlockingAI implements Runnable {
             nodes = path.getLocations();
             followPath(nodes);
         }
-        Location oldLoc = Storage.self.getLocation();
-        nodes = new LinkedList<>();
-        nodes.add(target);
-        followPath(nodes);
+        Storage.self.moveTo(target);
         return true;
     }
 
@@ -136,12 +133,6 @@ public class BlockingAI implements Runnable {
             if (direction.getHorizontalLength() != 0) {
                 yaw = direction.getYaw();
             }
-            int steps = (int) Math.floor(direction.getLength() / stepResolution);
-            direction = direction.normalize();
-            for (int i = 0; i < steps; i++) {
-                Storage.self.moveTo(oldLoc.getRelative(direction.multiply(i * stepResolution)).withYawPitch(180 / Math.PI * yaw, oldLoc.getPitchTo(loc)));
-                tick();
-            }
             Storage.self.moveTo(loc.withYawPitch(180 / Math.PI * yaw, oldLoc.getPitchTo(loc)));
             tick();
             oldLoc = loc;
@@ -176,6 +167,20 @@ public class BlockingAI implements Runnable {
     public void clickBlock(Location loc) throws InterruptedException {
         Storage.self.clickBlock(loc);
         tick();
+    }
+
+    public void eat() throws InterruptedException {
+        eat(0);
+    }
+
+    public void eat(int usedHand) throws InterruptedException {
+        CallbackLock cLock = new CallbackLock();
+        Storage.self.eatHeldItem(usedHand, () -> {
+            cLock.finish();
+        });
+        while (!cLock.isFinished()) {
+            tick();
+        }
     }
 
     public void tick() throws InterruptedException {

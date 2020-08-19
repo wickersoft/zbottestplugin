@@ -3,20 +3,22 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package zbottestplugin.oldshit;
+package zbottestplugin.task;
+
+import zbottestplugin.oldshit.BlockingAI;
+import zbottestplugin.task.Task;
 
 /**
  *
  * @author Dennis
  */
-public abstract class Routine {
-    
-    protected final BlockingAI ai;
+public abstract class Routine extends Task {
     
     public Routine(BlockingAI ai) {
-        this.ai = ai;
+        super(ai);
     }
     
-    public abstract void run() throws InterruptedException;
+    @Override
+    public abstract void work() throws InterruptedException;
         
 }

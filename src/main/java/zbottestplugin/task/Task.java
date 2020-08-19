@@ -17,9 +17,17 @@ public abstract class Task extends Thread {
     protected final BlockingAI ai;
     protected int aiTaskId;
     
+    public Task() {
+        this(100);
+    }
+    
     public Task(int interval) {
         this.ai = new BlockingAI();
         aiTaskId = Storage.self.scheduleSyncRepeatingTask(Storage.plugin, ai, interval);
+    }
+    
+    public Task(BlockingAI ai) {
+        this.ai = ai;
     }
     
     protected void unregister() {

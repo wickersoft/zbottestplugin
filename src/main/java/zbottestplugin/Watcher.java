@@ -36,8 +36,8 @@ public class Watcher implements Listener {
 
     //private final Pattern p = Pattern.compile("^\\[[VMT]\\].*<(.*?)> (.*)$");
     //private final Pattern pmp = Pattern.compile("^\\[\\[[VMT]\\].*<(.*?)> -> me\\] (.*)$");
-    private final Pattern p = Pattern.compile("^.*<(.*?)> (.*)$");
-    private final Pattern pmp = Pattern.compile("^\\[.*<(.*?)> -> Me\\] (.*)$");
+    private final Pattern p = Pattern.compile(ZBotTestPlugin.config.getString("public-message-regex", "^.*<(.*?)> (.*)$"));
+    private final Pattern pmp = Pattern.compile(ZBotTestPlugin.config.getString("private-message-regex", "^\\[.*<(.*?)> -> Me\\] (.*)$"));
     private final Pattern urlp = Pattern.compile("(https?:\\/\\/\\S+)");
     private final Pattern cp;
     private final Pattern welcomePattern = Pattern.compile("^Everybody welcome (.+) to the server!$");

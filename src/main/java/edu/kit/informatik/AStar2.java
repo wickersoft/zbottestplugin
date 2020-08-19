@@ -16,7 +16,7 @@ import zedly.zbot.Location;
  * @author Dennis
  */
 public class AStar2 {
-    private static final int MAX_PATH_WEIGHT = 1000;
+    private static final int MAX_PATH_WEIGHT = 100;
     private static final int PARTIAL_PATH_THRESHOLD = 200;
     private static PriorityQueue<PathTree> searchPerimeter;
     private static final HashMap<Long, PathTree> BEST_KNOWN_SCORES = new HashMap<>();

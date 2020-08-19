@@ -8,7 +8,7 @@ package zbottestplugin.enchantengine2;
 import zbottestplugin.InventoryUtil;
 import zbottestplugin.Storage;
 import zbottestplugin.oldshit.BlockingAI;
-import zbottestplugin.oldshit.Routine;
+import zbottestplugin.task.Routine;
 import zedly.zbot.Location;
 import zedly.zbot.event.WindowOpenFinishEvent;
 import zedly.zbot.inventory.ItemStack;
@@ -28,7 +28,7 @@ public class RoutineGetOneBook extends Routine {
     }
 
     @Override
-    public void run() throws InterruptedException {
+    public void work() throws InterruptedException {
         LibraryLocation ll = new LibraryLocation(slotId);
         Location gotoLoc = ll.getWalkLocation();
 

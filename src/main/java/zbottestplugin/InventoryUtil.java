@@ -51,7 +51,7 @@ public class InventoryUtil {
     }
 
     public static boolean findAndSelect(Material mat, int amount) {
-        return findAndSelect((i) -> i.getType() == mat && i.getAmount() == amount);
+        return findAndSelect((i) -> i != null && i.getType() == mat && i.getAmount() == amount);
     }
 
     public static int count(Material mat, boolean testStatic, boolean testExternal) {

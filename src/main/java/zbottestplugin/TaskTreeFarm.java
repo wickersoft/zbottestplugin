@@ -6,6 +6,7 @@
 package zbottestplugin;
 
 import java.util.Collection;
+import java.util.HashSet;
 import net.minecraft.server.NBTTagCompound;
 import zbottestplugin.task.Task;
 import zedly.zbot.BlockFace;
@@ -27,9 +28,13 @@ public class TaskTreeFarm extends Task {
     private final int TREE_SIZE = 7;
     private final int TREE_ROOT_X = 272;
     private final int TREE_ROOT_Z = -8839;
-    private final Location COAL_TESSERACT = new Location(265, 137, -8836);
-    private final Location SAPLING_TESSERACT = new Location(265, 137, -8837);
-    private final Location STICK_TESSERACT = new Location(265, 137, -8838);
+    private final Location COAL_TESSERACT = new Location(265, 137, -8836).centerHorizontally();
+    private final Location SAPLING_TESSERACT = new Location(265, 137, -8837).centerHorizontally();
+    private final Location STICK_TESSERACT = new Location(265, 137, -8838).centerHorizontally();
+    private final Location TREE_FARM_HOME = new Location(266, 137, -8837).centerHorizontally();
+    private final Location GOLD_FARM = new Location(295.5, 137, -8704.8);
+    private static final Location TRASH_CHEST_LOC = new Location(295, 136, -8705);
+    private static final HashSet<Material> TRASH_MATERIALS = new HashSet<>();
 
     public TaskTreeFarm(int interval) {
         super(interval);
@@ -37,66 +42,51 @@ public class TaskTreeFarm extends Task {
 
     @Override
     public void work() throws InterruptedException {
-        if (checkAxeDamage() >= 1350) {
-            ai.navigateTo2(0, 0, 0);
-            InventoryUtil.findAndSelect((is) -> {
-                return is != null && is.getType() == Material.DIAMOND_AXE;
-            });
-            while (checkAxeDamage() > 0) {
-                ai.tick(20);
-            }
-        }
-        for (int treeZ = 0; treeZ < 4; treeZ++) {
-            boolean rowGrown = true;
-            for (int treeX = 0; treeX < 5; treeX++) {
-                if (!isTreeGrown(treeX, treeZ)) {
-                    rowGrown = false;
+        while (true) {
+            for (int treeZ = 0; treeZ < 4; treeZ++) {
+                if (checkAxeDamage() >= 1350) {
+                    goRepairAxe();
                 }
-            }
-            if (rowGrown) {
-                clearTreeRow(treeZ);
+
+                boolean rowGrown = true;
+                for (int treeX = 0; treeX < 5; treeX++) {
+                    if (!isTreeGrown(treeX, treeZ)) {
+                        rowGrown = false;
+                    }
+                }
+                if (rowGrown) {
+                    IWantToBreakTree(treeZ);
+                } else {
+                    goCollectCoalItems();
+                    ai.tick(20);
+                }
             }
         }
     }
 
-    private void clearTreeRow(int treeZ) throws InterruptedException {
+    private void IWantToBreakTree(int treeZ) throws InterruptedException {
         // Get in position
         int z = getTreeZ(treeZ);
-        ai.navigateTo(WORK_X_MIN, WORK_Y, z);
+        ai.navigateTo2(WORK_X_MIN, WORK_Y, z);
 
         // Break the blocks
-        InventoryUtil.findAndSelect((is) -> {
-            return is != null && is.getType() == Material.DIAMOND_AXE;
-        });
+        InventoryUtil.findAndSelect(Material.DIAMOND_AXE, 1);
         for (int x = WORK_X_MIN; x < WORK_X_MAX; x++) {
             for (int y = WORK_Y; y <= WORK_Y + 1; y++) {
-                Material typeAtY = Storage.self.getEnvironment().getBlockAt(x, WORK_Y, z).getType();
+                Material typeAtY = Storage.self.getEnvironment().getBlockAt(x, y, z).getType();
                 int breakMillis = typeAtY == Material.SPRUCE_LOG ? 300 : 750;
                 if (typeAtY.isSolid()) {
                     Storage.self.sneak(true);
                     ai.breakBlock(x, y, z, breakMillis);
                     Storage.self.sneak(false);
-                    ai.tick(20);
+                    ai.tick(3);
                 }
             }
             ai.moveTo(x, WORK_Y, z);
+            ai.tick(5);
         }
 
-        ai.tick(20);
-        // Collect all coal items in row
-        while (true) {
-            Collection<Entity> items = Storage.self.getEnvironment().getEntities();
-            items.removeIf((e) -> {
-                return !(e instanceof Item) || ((Item) e).getItemStack().getType() != Material.CHARCOAL;
-            });
-            if (items.isEmpty()) {
-                break;
-            }
-            for (Entity e : items) {
-                ai.navigateTo(e.getLocation().getBlockX(), WORK_Y, e.getLocation().getBlockZ());
-                ai.tick(5);
-            }
-        }
+        ai.tick(10);
 
         // Replant
         for (int i = 4; i >= 0; i--) {
@@ -117,23 +107,81 @@ public class TaskTreeFarm extends Task {
         }
 
         // Restock
-        ai.navigateTo2(COAL_TESSERACT);
+        ai.navigateTo2(COAL_TESSERACT.getRelative(1, 0, 0));
         Storage.self.placeBlock(COAL_TESSERACT, BlockFace.UP);
         Storage.self.placeBlock(COAL_TESSERACT, BlockFace.UP);
         ai.tick(10);
 
-        ai.navigateTo2(STICK_TESSERACT);
+        ai.navigateTo2(STICK_TESSERACT.getRelative(1, 0, 0));
         Storage.self.placeBlock(STICK_TESSERACT, BlockFace.UP);
         Storage.self.placeBlock(STICK_TESSERACT, BlockFace.UP);
         ai.tick(10);
 
-        ai.navigateTo2(SAPLING_TESSERACT);
+        ai.navigateTo2(SAPLING_TESSERACT.getRelative(1, 0, 0));
         Storage.self.placeBlock(SAPLING_TESSERACT, BlockFace.UP);
         Storage.self.placeBlock(SAPLING_TESSERACT, BlockFace.UP);
         ai.tick(10);
 
         Storage.self.clickBlock(SAPLING_TESSERACT);
         ai.tick(10);
+    }
+
+    private void goRepairAxe() throws InterruptedException {
+        InventoryUtil.findAndSelect(Material.DIAMOND_AXE, 1);
+        ai.navigateTo2(GOLD_FARM);
+        while (checkAxeDamage() > 0) {
+            InventoryUtil.findAndSelect(Material.DIAMOND_AXE, 1);
+            ai.tick(20);
+        }
+        dumpTrash();
+        ai.navigateTo2(TREE_FARM_HOME);
+    }
+
+    private void goCollectCoalItems() throws InterruptedException {
+        Collection<Entity> items = Storage.self.getEnvironment().getEntities();
+        items.removeIf((e) -> {
+            return !(e instanceof Item) || ((Item) e).getItemStack() == null || 
+                    ((Item) e).getItemStack().getType() != Material.CHARCOAL
+                    || e.getLocation().getY() > WORK_Y + 3
+                    || e.getLocation().getY() < WORK_Y;
+        });
+        if (!items.isEmpty()) {
+            for (Entity e : items) {
+                ai.navigateTo2(e.getLocation().getBlockX(), WORK_Y, e.getLocation().getBlockZ());
+                ai.tick(5);
+            }
+        } else {
+            ai.navigateTo2(TREE_FARM_HOME);
+        }
+    }
+
+    private boolean dumpTrash() throws InterruptedException {
+        if (InventoryUtil.findItem((i) -> i != null && TRASH_MATERIALS.contains(i.getType())) == -1) {
+            return true;
+        }
+
+        if (!ai.openContainer(TRASH_CHEST_LOC)) {
+            System.err.println("Can't open disposal");
+            ai.tick(50);
+            return false;
+        }
+
+        int staticOffset = Storage.self.getInventory().getStaticOffset();
+        boolean hasTrash;
+        do {
+            hasTrash = false;
+            for (int i = staticOffset; i < staticOffset + 36; i++) {
+                if (Storage.self.getInventory().getSlot(i) != null
+                        && TRASH_MATERIALS.contains(Storage.self.getInventory().getSlot(i).getType())) {
+                    ai.depositSlot(i);
+                    hasTrash = true;
+                }
+            }
+        } while (hasTrash);
+
+        ai.closeContainer();
+
+        return true;
     }
 
     private int getTreeZ(int treeZ) {
@@ -158,6 +206,16 @@ public class TaskTreeFarm extends Task {
             return damage;
         }
         return -1;
+    }
+
+    static {
+        TRASH_MATERIALS.add(Material.ROTTEN_FLESH);
+        TRASH_MATERIALS.add(Material.GOLD_NUGGET);
+        TRASH_MATERIALS.add(Material.GOLD_INGOT);
+        TRASH_MATERIALS.add(Material.GOLDEN_SWORD);
+        TRASH_MATERIALS.add(Material.CHICKEN);
+        TRASH_MATERIALS.add(Material.COOKED_CHICKEN);
+        TRASH_MATERIALS.add(Material.FEATHER);
     }
 
 }

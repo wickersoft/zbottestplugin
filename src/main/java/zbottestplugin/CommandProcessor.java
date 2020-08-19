@@ -48,6 +48,7 @@ import zbottestplugin.enchantengine2.TaskScanLibrary;
 import zbottestplugin.enchantengine2.TaskSellBooks;
 import zbottestplugin.enchantengine2.TaskSellIron;
 import zbottestplugin.enchantengine2.TaskStoreBooks;
+import zbottestplugin.task.Task;
 import zedly.zbot.entity.FallingBlock;
 import zedly.zbot.entity.Item;
 import zedly.zbot.entity.LivingEntity;
@@ -289,6 +290,11 @@ public class CommandProcessor {
             return;
         }
         switch (args[0]) {
+            case "eat":
+                System.out.println(Storage.self.getFoodLevel());
+                Storage.self.eatHeldItem(0, () -> {
+                });
+                break;
             case "trans":
             case "translate":
                 if (args.length < 2) {
@@ -479,8 +485,12 @@ public class CommandProcessor {
                 }
                 Location loc = null;
 
-                if (args.length == 2 && args[1].equals("me")) {
-                    UUID uuid = Storage.self.getEnvironment().getUUIDByPlayerName(player);
+                if (args.length == 2) {
+                    String goToName = player;
+                    if (!args[1].equals("me")) {
+                        goToName = args[1];
+                    }
+                    UUID uuid = Storage.self.getEnvironment().getUUIDByPlayerName(goToName);
                     for (Entity e : Storage.self.getEnvironment().getEntities()) {
                         if (e instanceof Player && ((Player) e).getUUID().equals(uuid)) {
                             loc = e.getLocation();
@@ -802,7 +812,7 @@ public class CommandProcessor {
                 break;
             case "lore":
                 is = Storage.self.getInventory().getSlot(Storage.self.getInventory().getSelectedSlot());
-                List<String> lore = is.getLore();                
+                List<String> lore = is.getLore();
                 if (lore == null || lore.isEmpty()) {
                     Storage.self.sendChat("This item has no lore");
                 } else {
@@ -987,6 +997,55 @@ public class CommandProcessor {
                 break;
             case "trees":
                 new TaskTreeFarm(100).start();
+                break;
+            case "travel":
+                String leaderName = player;
+                UUID leaderUuid = null;
+                if (args.length >= 2) {
+                    leaderName = args[1];
+                }
+                leaderUuid = Storage.self.getEnvironment().getUUIDByPlayerName(leaderName);
+                if (leaderUuid == null) {
+                    respond(respondTo, "No UUID for " + leaderName);
+                    return;
+                }
+                // Take advantage of (eventual) system wide case insensitivity
+                leaderName = Storage.self.getEnvironment().getPlayerNameByUUID(leaderUuid);
+                new TaskTravelCompanion(leaderName, leaderUuid).start();
+                break;
+            case "sleep":
+                Location bedLocation = EntironmentUtil.BFSScan((b) -> {
+                    switch (Storage.self.getEnvironment().getBlockAt(b).getType()) {
+                        case WHITE_BED:
+                        case RED_BED:
+                        case ORANGE_BED:
+                        case YELLOW_BED:
+                        case LIME_BED:
+                        case GREEN_BED:
+                        case CYAN_BED:
+                        case LIGHT_BLUE_BED:
+                        case BLUE_BED:
+                        case PURPLE_BED:
+                        case MAGENTA_BED:
+                        case PINK_BED:
+                        case GRAY_BED:
+                        case LIGHT_GRAY_BED:
+                        case BROWN_BED:
+                        case BLACK_BED:
+                            return true;
+                        default:
+                            return false;
+                    }
+                }, (b) -> {
+                    return true;
+                }, Storage.self.getLocation(), 10);
+                new Task() {
+                    public void work() throws InterruptedException {
+                        ai.moveTo(bedLocation.getRelative(0, 1, 0));
+                        Storage.self.sneak(false);
+                        Storage.self.placeBlock(bedLocation, BlockFace.UP);
+                    }
+                }.start();
                 break;
             case "exit":
                 Storage.self.shutdown();

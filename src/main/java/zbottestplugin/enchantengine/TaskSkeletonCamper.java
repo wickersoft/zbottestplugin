@@ -256,7 +256,7 @@ public class TaskSkeletonCamper extends Task {
             Entity bestSkeleton = null;
             for (Entity ent : Storage.self.getEnvironment().getEntities()) {
                 if (ent.getType() != EntityType.SKELETON &&
-                        ent.getType() != EntityType.PIG_ZOMBIE) {
+                        ent.getType() != EntityType.ZOMBIE_PIGMAN) {
                     continue;
                 }
                 if (ent.getLocation().distanceTo(attackLoc) < 2) {
