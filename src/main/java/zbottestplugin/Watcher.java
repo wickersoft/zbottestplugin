@@ -218,10 +218,7 @@ public class Watcher implements Listener {
     private long kl;
     @EventHandler
     public void onKeepAlive(WorldTimeChangeEvent evt) {
-        System.out.println(evt.getTimeOfDay() + "  " + (kl - System.nanoTime()));
+        //System.out.println(evt.getTimeOfDay() + "  " + (kl - System.nanoTime()));
         kl = System.nanoTime();
     }
-    
-    
-    
 }
