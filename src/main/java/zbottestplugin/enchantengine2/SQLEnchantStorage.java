@@ -39,7 +39,7 @@ public class SQLEnchantStorage {
         this.username = username;
         this.password = password;
         this.tableName = tableName;
-        DB_URL = "jdbc:mysql://" + hostname + ":" + port + "/" + databaseName + "?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
+        DB_URL = "jdbc:mysql://" + hostname + ":" + port + "/" + databaseName + "?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&allowPublicKeyRetrieval=true";
     }
 
     public boolean connect() {
